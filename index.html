@@ -342,13 +342,16 @@ function getSavedConfig() {
 async function ensureSupabase() {
   const saved = getSavedConfig();
 
-  if (!saved.url || !saved.key) {
-    throw new Error(
-      "Supabase is not connected. Please use your existing Supabase Project URL and Publishable Key."
-    );
-  }
+const url = saved.url || SUPABASE_URL;
+const key = saved.key || SUPABASE_ANON_KEY;
 
-  supabaseClient = window.supabase.createClient(saved.url, saved.key);
+if (!url || !key) {
+  throw new Error(
+    "Supabase is not connected. Please use your existing Supabase Project URL and Publishable Key."
+  );
+}
+
+supabaseClient = window.supabase.createClient(url, key);
   return supabaseClient;
 }
 
