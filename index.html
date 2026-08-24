@@ -1,67 +1,957 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aprameyah Learning Impact Platform</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#687386;--line:#e1e6ef;--blue:#315efb;--green:#13845b;--red:#c53030}
-*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-header{background:#111827;color:#fff;padding:17px 28px;display:flex;justify-content:space-between}.brand{font-weight:800}.tag{font-size:12px;background:#26334c;padding:7px 10px;border-radius:20px}
-main{max-width:1180px;margin:25px auto;padding:0 18px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}h1{margin:0 0 7px;font-size:27px}h2{font-size:18px}.muted{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-input,select,textarea{width:100%;padding:10px;border:1px solid #d4dae5;border-radius:8px;font:inherit}label{font-size:12px;font-weight:800;display:block;margin:11px 0 6px}
-button{border:0;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary{background:#edf0f5;color:#253147}.danger{background:#fff0f0;color:var(--red)}
-.row{display:flex;gap:12px;align-items:end}.row>*{flex:1}.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}.kpi{font-size:28px;font-weight:800;margin-top:6px}
-nav{background:#fff;border-bottom:1px solid var(--line);padding:9px 18px;display:flex;gap:6px;overflow:auto}nav button{background:transparent;color:#596579}nav button.active{background:#edf2ff;color:var(--blue)}
-.page{display:none}.page.active{display:block}table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}.notice{background:#eff4ff;border-left:4px solid var(--blue);padding:12px;border-radius:7px;font-size:13px}.success{background:#eaf8f1;border-left:4px solid var(--green);padding:12px;border-radius:7px}
-.question{border:1px solid var(--line);border-radius:10px;padding:15px;margin:11px 0}.option{display:block;background:#f7f8fb;padding:9px;border-radius:7px;margin:6px 0;font-weight:500}.option input{width:auto}.linkbox{font-family:monospace;font-size:11px;background:#f7f8fb;padding:9px;word-break:break-all}
-@media(max-width:800px){.grid,.two{grid-template-columns:1fr 1fr}.row{flex-direction:column;align-items:stretch}}@media(max-width:520px){.grid,.two{grid-template-columns:1fr}}
+:root{
+  --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#687386;
+  --line:#e1e6ef;--blue:#315efb;--green:#13845b;--red:#c53030;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#111827;color:#fff;padding:17px 28px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:20px;font-weight:800}
+.tag{background:#25324a;padding:8px 14px;border-radius:20px;font-size:14px}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;gap:6px;overflow:auto}
+nav button{background:none;border:0;padding:17px 14px;font-size:16px;font-weight:650;color:#566173;cursor:pointer;white-space:nowrap}
+nav button.active{color:var(--blue);border-bottom:3px solid var(--blue)}
+main{max-width:1400px;margin:auto;padding:35px 28px}
+.page{display:none}.page.active{display:block}
+h1{margin:0 0 8px;font-size:34px}h2{margin:0 0 18px}
+p.sub{color:var(--muted);margin:0 0 25px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.stat{font-size:34px;font-weight:800;margin-top:12px}
+.stat-label{color:var(--muted)}
+.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.row>*{flex:1;min-width:160px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input,select,textarea{
+ width:100%;padding:11px;border:1px solid #d4dae5;border-radius:8px;
+ font:inherit;background:#fff
+}
+textarea{min-height:100px}
+button{
+ border:0;border-radius:8px;padding:11px 16px;font:inherit;font-weight:700;
+ cursor:pointer;background:#e9edf5;color:#172033
+}
+button.primary{background:var(--blue);color:#fff}
+button.success{background:var(--green);color:#fff}
+button.danger{background:var(--red);color:#fff}
+button:disabled{opacity:.6;cursor:not-allowed}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+.notice{padding:13px;border-radius:8px;margin:12px 0}
+.notice.error{background:#fff1f1;color:#a82020}
+.notice.success{background:#effbf5;color:#137247}
+.link-box{padding:12px;background:#f6f8fc;border:1px dashed #aeb9ce;border-radius:8px;word-break:break-all}
+.question{border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:15px}
+.option{display:block;padding:10px;margin-top:8px;background:#f7f8fb;border-radius:7px;cursor:pointer}
+.option input{width:auto;margin-right:8px}
+.timer{font-size:22px;font-weight:800;color:#c53030;padding:10px 15px;background:#fff1f1;border-radius:8px;display:inline-block}
+.center{max-width:850px;margin:40px auto}
+.small{font-size:13px;color:var(--muted)}
+.badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#eef2ff;color:#315efb;font-size:12px;font-weight:700}
+@media(max-width:850px){
+ .grid{grid-template-columns:repeat(2,1fr)}
+ main{padding:22px 15px}
+}
 </style>
 </head>
+
 <body>
-<header><div class="brand">Aprameyah Learning Impact Platform</div><div class="tag">Cloud MVP</div></header>
-<div id="nav" style="display:none"><nav>
-<button data-p="dashboard">Dashboard</button><button data-p="clients">Clients</button><button data-p="program">Program</button><button data-p="questions">Questions</button><button data-p="participants">Participants</button><button data-p="reports">Reports</button><button onclick="logout()">Sign out</button>
-</nav></div>
+
+<header>
+  <div class="brand">Aprameyah Learning Impact Platform</div>
+  <div class="tag" id="modeTag">Cloud MVP</div>
+</header>
+
+<!-- PARTICIPANT VIEW -->
+<div id="participantApp" class="hidden">
+  <main class="center">
+
+    <div id="participantLoading" class="card">
+      Loading assessment...
+    </div>
+
+    <div id="participantError" class="card hidden"></div>
+
+    <!-- Name entry -->
+    <div id="nameScreen" class="card hidden">
+      <h1 id="participantProgramName">Assessment</h1>
+      <p class="sub">Please enter your name before starting the assessment.</p>
+
+      <label>Your Name</label>
+      <input id="participantName" placeholder="Enter your full name">
+
+      <div class="actions">
+        <button class="primary" onclick="startAssessment()">Start Assessment</button>
+      </div>
+
+      <p class="small" id="assessmentInstructions"></p>
+    </div>
+
+    <!-- Questions -->
+    <div id="assessmentScreen" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2 id="assessmentTitle">Assessment</h2>
+            <span class="badge" id="assessmentStage"></span>
+          </div>
+          <div style="text-align:right">
+            <div class="timer" id="timer">--:--</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="questionsContainer"></div>
+
+      <div class="actions">
+        <button class="success" id="submitAssessmentBtn" onclick="submitAssessment()">
+          Submit Assessment
+        </button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="resultScreen" class="card hidden">
+      <h1>Assessment Submitted</h1>
+      <p class="sub">Thank you for completing the assessment.</p>
+      <h2 id="resultScore"></h2>
+      <p id="resultDetails"></p>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="adminApp">
+<nav>
+  <button class="active" data-page="dashboard">Dashboard</button>
+  <button data-page="clients">Clients</button>
+  <button data-page="programs">Program</button>
+  <button data-page="questions">Questions</button>
+  <button data-page="participants">Participants</button>
+  <button data-page="reports">Reports</button>
+  <button data-page="assessment-links">Assessment Links</button>
+  <button onclick="disconnectSupabase()">Sign out</button>
+</nav>
+
 <main>
-<section id="setup" class="page active"><div class="card"><h1>Connect Aprameyah Platform</h1><p class="muted">Enter the two client-side Supabase values for this project. They stay in this browser's local storage.</p><label>Supabase Project URL</label><input id="url" placeholder="https://xxxxx.supabase.co"><label>Supabase Publishable Key</label><input id="key" placeholder="sb_publishable_..."><div class="actions"><button class="primary" onclick="saveConfig()">Save & Continue</button></div></div></section>
-<section id="login" class="page"><div class="card" style="max-width:480px;margin:40px auto"><h1>Admin Login</h1><p class=muted>Use the admin user created in Supabase Authentication.</p><label>Email</label><input id="email"><label>Password</label><input id="password" type="password"><div class=actions><button class=primary onclick="login()">Sign in</button></div><div id=loginMsg class=notice style="display:none"></div></div></section>
-<section id="dashboard" class="page"><h1>Learning Impact Dashboard</h1><p class=muted>Cloud-connected Aprameyah assessment management.</p><div id=dash class=grid></div></section>
-<section id="clients" class="page"><h1>Clients</h1><div class=card><div class=row><div><label>Client name</label><input id=cname></div><div><label>Contact</label><input id=ccontact></div><button class=primary onclick=addClient()>Add client</button></div></div><div class=card id=clientsList></div></section>
-<section id="program" class="page"><h1>Training Program</h1><div class=card><div class=row><div><label>Client</label><select id=tclient></select></div><div><label>Program name</label><input id=tname></div></div><div class=row><div><label>Trainer</label><input id=ttrainer></div><div><label>Batch</label><input id=tbatch></div><div><label>Duration hours</label><input id=tduration type=number></div></div><label>Learning objectives</label><textarea id=tobj rows=4></textarea><div class=actions><button class=primary onclick=addProgram()>Create program</button></div></div><div class=card id=programList></div></section>
-<section id="questions" class="page"><h1>Question Bank</h1><div class=card><div class=row><div><label>Program</label><select id=qprogram></select></div><div><label>Module name</label><input id=qmodule></div><div><label>Skill</label><input id=qskill></div></div><label>Question</label><textarea id=qtext rows=3></textarea><div class=row><div><label>A</label><input id=qa></div><div><label>B</label><input id=qb></div><div><label>C</label><input id=qc></div><div><label>D</label><input id=qd></div></div><label>Correct answer</label><select id=qcorrect><option value=0>A</option><option value=1>B</option><option value=2>C</option><option value=3>D</option></select><div class=actions><button class=primary onclick=addQuestion()>Add question</button></div></div><div class=card id=questionList></div></section>
-<section id="participants" class="page"><h1>Participants</h1><div class=card><div class=row><div><label>Program</label><select id=pprogram></select></div><div><label>Full Name</label><input id=pname></div><div><label>Email(Optional)</label><input id=pemail></div><div></div><button class=primary onclick=addParticipant()>Add</button></div></div><div class=card id=participantList></div></section>
-<section id="reports" class="page"><h1>Reports</h1><div class=card><div class=notice">Participant reporting is enabled after assessments are completed. Use the participant link generated below to run pre/post assessments.</div><div id=reportList></div></div></section>
-<section id="participant" class="page"><div class=card><h1 id=ptitle>Assessment</h1><p id=pdesc class=muted></p><div id=passessment></div></div></section>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+  <h1>Learning Impact Dashboard</h1>
+  <p class="sub">Cloud-connected Aprameyah assessment management.</p>
+
+  <div class="grid">
+    <div class="card"><div class="stat-label">Clients</div><div class="stat" id="clientCount">0</div></div>
+    <div class="card"><div class="stat-label">Programs</div><div class="stat" id="programCount">0</div></div>
+    <div class="card"><div class="stat-label">Participants</div><div class="stat" id="participantCount">0</div></div>
+    <div class="card"><div class="stat-label">Assessments</div><div class="stat" id="assessmentCount">0</div></div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients" class="page">
+  <h1>Clients</h1>
+  <p class="sub">Manage client organisations.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Client Name</label>
+        <input id="newClientName" placeholder="Client name">
+      </div>
+      <div>
+        <button class="primary" onclick="addClient()">Add Client</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card"><div id="clientsList"></div></div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs" class="page">
+  <h1>Programs</h1>
+  <p class="sub">Create and manage training programs.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Client</label>
+        <select id="programClient"></select>
+      </div>
+      <div>
+        <label>Program Name</label>
+        <input id="programName" placeholder="Program name">
+      </div>
+      <div>
+        <label>Batch Name</label>
+        <input id="batchName" placeholder="Batch name">
+      </div>
+      <div>
+        <label>Duration (Hours)</label>
+        <input id="durationHours" type="number" placeholder="12">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="addProgram()">Create Program</button>
+    </div>
+  </div>
+
+  <div class="card"><div id="programsList"></div></div>
+</section>
+
+<!-- QUESTIONS -->
+<section id="questions" class="page">
+  <h1>Questions</h1>
+  <p class="sub">Manage assessment questions.</p>
+
+  <div class="card">
+    <label>Select Program</label>
+    <select id="questionProgram" onchange="loadQuestions()"></select>
+    <div id="questionsList" style="margin-top:20px"></div>
+  </div>
+</section>
+
+<!-- PARTICIPANTS -->
+<section id="participants" class="page">
+  <h1>Participants</h1>
+  <p class="sub">Participants created through assessment links will also appear here.</p>
+  <div class="card">
+    <div id="participantsList"></div>
+  </div>
+</section>
+
+<!-- REPORTS -->
+<section id="reports" class="page">
+  <h1>Reports</h1>
+  <p class="sub">Assessment results and scores.</p>
+  <div class="card">
+    <div id="reportsList"></div>
+  </div>
+</section>
+
+<!-- ASSESSMENT LINKS -->
+<section id="assessment-links" class="page">
+  <h1>Common Assessment Links</h1>
+  <p class="sub">
+    Create one shareable link for an assessment. Participants enter their own name,
+    duplicate names are allowed, and you can control the time limit and expiry.
+  </p>
+
+  <div class="card">
+    <h2>Create Assessment Link</h2>
+
+    <div class="row">
+      <div>
+        <label>Program</label>
+        <select id="linkProgram"></select>
+      </div>
+
+      <div>
+        <label>Assessment Stage</label>
+        <select id="linkStage">
+          <option value="pre">Pre Assessment</option>
+          <option value="post">Post Assessment</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Time Limit (Minutes)</label>
+        <input id="linkTimeLimit" type="number" min="1" placeholder="Example: 30">
+      </div>
+
+      <div>
+        <label>Expiry Date & Time</label>
+        <input id="linkExpiry" type="datetime-local">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="createAssessmentLink()">Create Common Link</button>
+    </div>
+
+    <div id="linkMessage"></div>
+  </div>
+
+  <div class="card">
+    <h2>Existing Assessment Links</h2>
+    <div id="assessmentLinksList"></div>
+  </div>
+</section>
+
 </main>
+</div>
+
 <script>
-let sb=null, config=JSON.parse(localStorage.getItem("ALIP_CONFIG")||"null"), currentUser=null;
-const $=id=>document.getElementById(id), esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-function show(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
-async function init(){
- if(location.hash.startsWith("#participant=")){await participantMode();return}
- if(!config){show("setup");return}
- sb=supabase.createClient(config.url,config.key);
- const {data:{session}}=await sb.auth.getSession();
- if(session){currentUser=session.user;$("nav").style.display="block";show("dashboard");await loadAll()}else show("login")
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
+
+const CONFIG_KEY = "apr_learning_supabase_config";
+
+let supabaseClient = null;
+let participantPackage = null;
+let activeAssessmentId = null;
+let timerInterval = null;
+let timeLimitSeconds = null;
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("assessment");
+
+  if (token) {
+    document.getElementById("adminApp").classList.add("hidden");
+    document.getElementById("participantApp").classList.remove("hidden");
+    await initParticipant(token);
+    return;
+  }
+
+  await initAdmin();
+});
+
+function getSavedConfig() {
+  try {
+    return JSON.parse(localStorage.getItem(CONFIG_KEY) || "{}");
+  } catch {
+    return {};
+  }
 }
-async function saveConfig(){let url=$("url").value.trim(),key=$("key").value.trim();if(!url||!key)return alert("Enter both values.");localStorage.setItem("ALIP_CONFIG",JSON.stringify({url,key}));config={url,key};location.reload()}
-async function login(){let {data,error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error){$("loginMsg").style.display="block";$("loginMsg").textContent=error.message;return}currentUser=data.user;$("nav").style.display="block";show("dashboard");await loadAll()}
-async function logout(){await sb.auth.signOut();location.reload()}
-document.querySelectorAll("nav button[data-p]").forEach(b=>b.onclick=async()=>{show(b.dataset.p);await loadAll()})
-async function loadAll(){await Promise.all([loadClients(),loadPrograms(),loadQuestions(),loadParticipants()]);await loadDashboard();await loadReports()}
-async function addClient(){let name=$("cname").value.trim();if(!name)return alert("Enter client name");let {error}=await sb.from("clients").insert({name,contact_name:$("ccontact").value.trim()});if(error)return alert(error.message);$("cname").value=$("ccontact").value="";loadAll()}
-async function loadClients(){let {data,error}=await sb.from("clients").select("*").order("created_at",{ascending:false});if(error)return console.error(error);$("clientsList").innerHTML=data.length?`<table><tr><th>Client</th><th>Contact</th></tr>${data.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.contact_name||"—")}</td></tr>`).join("")}</table>`:"No clients."; $("tclient").innerHTML=data.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}
-async function addProgram(){let x={client_id:$("tclient").value,name:$("tname").value.trim(),trainer_name:$("ttrainer").value.trim(),batch_name:$("tbatch").value.trim(),duration_hours:$("tduration").value||null,learning_objectives:$("tobj").value.trim(),status:"active"};if(!x.name)return alert("Enter program name");let {error}=await sb.from("programs").insert(x);if(error)return alert(error.message);loadAll()}
-async function loadPrograms(){let {data,error}=await sb.from("programs").select("*,clients(name)").order("created_at",{ascending:false});if(error)return console.error(error);let opts=data.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");$("qprogram").innerHTML=opts;$("pprogram").innerHTML=opts;$("programList").innerHTML=data.length?`<table><tr><th>Program</th><th>Client</th><th>Batch</th><th>Status</th></tr>${data.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.clients?.name||"")}</td><td>${esc(p.batch_name||"")}</td><td>${esc(p.status)}</td></tr>`).join("")}</table>`:"No programs."}
-async function addQuestion(){let x={program_id:$("qprogram").value,question_text:$("qtext").value.trim(),skill:$("qskill").value.trim(),difficulty:"Medium",question_type:"MCQ",options:[$("qa").value,$("qb").value,$("qc").value,$("qd").value],correct_option:+$("qcorrect").value};if(!x.program_id||!x.question_text)return alert("Select a program and enter the question.");let {error}=await sb.from("questions").insert(x);if(error)return alert(error.message);["qtext","qmodule","qskill","qa","qb","qc","qd"].forEach(i=>$(i).value="");loadAll()}
-async function loadQuestions(){let {data,error}=await sb.from("questions").select("*,programs(name)").order("created_at",{ascending:false});if(error)return console.error(error);$("questionList").innerHTML=data.length?`<table><tr><th>Program</th><th>Question</th><th>Skill</th></tr>${data.map(q=>`<tr><td>${esc(q.programs?.name||"")}</td><td>${esc(q.question_text)}</td><td>${esc(q.skill||"")}</td></tr>`).join("")}</table>`:"No questions."}
-async function addParticipant(){let x={program_id:$("pprogram").value,name:$("pname").value.trim(),email:$("pemail").value.trim()};if(!x.program_id||!x.name)return alert("Select a program and enter a name.");let {error}=await sb.from("participants").insert(x);if(error)return alert(error.message);["pname","pemail"].forEach(i=>$(i).value="");loadAll()}
-async function loadParticipants(){let {data,error}=await sb.from("participants").select("*,programs(name)").order("created_at",{ascending:false});if(error)return console.error(error);let base=location.href.split("#")[0];$("participantList").innerHTML=data.length?`<table><tr><th>Participant</th><th>Program</th><th>Assessment link</th></tr>${data.map(p=>{let link=base+"#participant="+p.access_token;return `<tr><td><b>${esc(p.name)}</b><br><span class=muted>${esc(p.email)}</span></td><td>${esc(p.programs?.name||"")}</td><td><div class=linkbox>${esc(link)}</div><button class=secondary style="margin-top:6px" onclick="navigator.clipboard.writeText('${link}');alert('Copied')">Copy link</button></td></tr>`}).join("")}</table>`:"No participants."}
-async function loadDashboard(){let [c,p,pt,a]=await Promise.all([sb.from("clients").select("id",{count:"exact",head:true}),sb.from("programs").select("id",{count:"exact",head:true}),sb.from("participants").select("id",{count:"exact",head:true}),sb.from("assessments").select("id",{count:"exact",head:true})]);$("dash").innerHTML=[["Clients",c.count||0],["Programs",p.count||0],["Participants",pt.count||0],["Assessments",a.count||0]].map(x=>`<div class=card><span class=muted>${x[0]}</span><div class=kpi>${x[1]}</div></div>`).join("")}
-async function loadReports(){let {data,error}=await sb.from("assessment_results").select("*,participants(name,email),assessments(stage)").order("created_at",{ascending:false});if(error)return console.error(error);$("reportList").innerHTML=data.length?`<table><tr><th>Participant</th><th>Stage</th><th>Score</th><th>Proficiency</th></tr>${data.map(r=>`<tr><td>${esc(r.participants?.name||"")}</td><td>${esc(r.assessments?.stage||"")}</td><td>${r.overall_score}%</td><td>${esc(r.proficiency_level||"")}</td></tr>`).join("")}</table>`:"No completed assessments yet."}
-async function participantMode(){show("participant");let token=location.hash.split("=")[1];let stage=new URLSearchParams(location.search).get("stage")||"pre";config=JSON.parse(localStorage.getItem("ALIP_CONFIG")||"null");if(!config){$("passessment").innerHTML="<div class=notice>Platform configuration is missing.</div>";return}sb=supabase.createClient(config.url,config.key);let {data,error}=await sb.rpc("get_assessment_package",{p_token:token,p_stage:stage});if(error){$("ptitle").textContent="Invalid assessment link";$("passessment").innerHTML=`<div class=notice>${esc(error.message)}</div>`;return}$("ptitle").textContent=data.program.name+" — "+(stage==="pre"?"Pre-Training":"Post-Training");$("pdesc").textContent="Participant: "+data.participant.name;window.__pkg={token,stage,data};$("passessment").innerHTML=data.questions.length?data.questions.map((q,i)=>`<div class=question><b>${i+1}. ${esc(q.question_text)}</b><div class=muted>${esc(q.skill||"")}</div>${(q.options||[]).map((o,j)=>`<label class=option><input type=radio name="q${q.id}" value="${j}"> ${String.fromCharCode(65+j)}. ${esc(o)}</label>`).join("")}</div>`).join("")+`<div class=actions><button class=primary onclick=submitParticipant()>Submit assessment</button></div>`:"<div class=notice>No questions are configured for this program.</div>"}
-async function submitParticipant(){let pkg=window.__pkg,answers={};pkg.data.questions.forEach(q=>{let x=document.querySelector(`input[name="q${q.id}"]:checked`);if(x)answers[q.id]=+x.value});if(Object.keys(answers).length<pkg.data.questions.length&&!confirm("Some questions are unanswered. Submit anyway?"))return;let {data,error}=await sb.rpc("submit_assessment",{p_token:pkg.token,p_stage:pkg.stage,p_answers:answers});if(error)return alert(error.message);$("passessment").innerHTML=`<div class=success><b>Assessment submitted successfully.</b><br>Your score: ${data.score}%</div>`}
-init();
+
+async function ensureSupabase() {
+  const saved = getSavedConfig();
+
+  if (!saved.url || !saved.key) {
+    throw new Error(
+      "Supabase is not connected. Please use your existing Supabase Project URL and Publishable Key."
+    );
+  }
+
+  supabaseClient = window.supabase.createClient(saved.url, saved.key);
+  return supabaseClient;
+}
+
+/* =========================================================
+   ADMIN
+   ========================================================= */
+
+async function initAdmin() {
+  try {
+    await ensureSupabase();
+    await loadAllAdminData();
+  } catch (err) {
+    console.error(err);
+    showConnectionScreen();
+  }
+}
+
+function showConnectionScreen() {
+  document.querySelector("#dashboard").innerHTML = `
+    <div class="card">
+      <h1>Connect Aprameyah Platform</h1>
+      <p class="sub">Enter the two client-side Supabase values for this project.</p>
+
+      <label>Supabase Project URL</label>
+      <input id="configUrl" placeholder="https://xxxxx.supabase.co">
+
+      <label style="margin-top:15px">Supabase Publishable Key</label>
+      <input id="configKey" placeholder="sb_publishable_...">
+
+      <div class="actions">
+        <button class="primary" onclick="saveSupabaseConfig()">Save & Continue</button>
+      </div>
+    </div>
+  `;
+}
+
+async function saveSupabaseConfig() {
+  const url = document.getElementById("configUrl").value.trim();
+  const key = document.getElementById("configKey").value.trim();
+
+  if (!url || !key) {
+    alert("Please enter both the Project URL and Publishable Key.");
+    return;
+  }
+
+  localStorage.setItem(CONFIG_KEY, JSON.stringify({ url, key }));
+  location.reload();
+}
+
+function disconnectSupabase() {
+  localStorage.removeItem(CONFIG_KEY);
+  location.reload();
+}
+
+async function loadAllAdminData() {
+  await Promise.all([
+    loadDashboard(),
+    loadClients(),
+    loadPrograms(),
+    loadParticipants(),
+    loadReports(),
+    loadAssessmentLinks()
+  ]);
+}
+
+async function loadDashboard() {
+  const [clients, programs, participants, assessments] = await Promise.all([
+    supabaseClient.from("clients").select("id", { count:"exact", head:true }),
+    supabaseClient.from("programs").select("id", { count:"exact", head:true }),
+    supabaseClient.from("participants").select("id", { count:"exact", head:true }),
+    supabaseClient.from("assessments").select("id", { count:"exact", head:true })
+  ]);
+
+  document.getElementById("clientCount").textContent = clients.count || 0;
+  document.getElementById("programCount").textContent = programs.count || 0;
+  document.getElementById("participantCount").textContent = participants.count || 0;
+  document.getElementById("assessmentCount").textContent = assessments.count || 0;
+}
+
+async function addClient() {
+  const name = document.getElementById("newClientName").value.trim();
+  if (!name) return alert("Please enter a client name.");
+
+  const { error } = await supabaseClient
+    .from("clients")
+    .insert({ name });
+
+  if (error) return alert(error.message);
+
+  document.getElementById("newClientName").value = "";
+  await loadClients();
+  await loadDashboard();
+}
+
+async function loadClients() {
+  const { data, error } = await supabaseClient
+    .from("clients")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if (error) return;
+
+  const select = document.getElementById("programClient");
+  select.innerHTML = `<option value="">Select client</option>`;
+
+  (data || []).forEach(c => {
+    select.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+  });
+
+  document.getElementById("clientsList").innerHTML = tableHtml(
+    ["Client"],
+    (data || []).map(c => [escapeHtml(c.name)])
+  );
+}
+
+async function addProgram() {
+  const client_id = document.getElementById("programClient").value;
+  const name = document.getElementById("programName").value.trim();
+  const batch_name = document.getElementById("batchName").value.trim();
+  const duration_hours = Number(document.getElementById("durationHours").value) || null;
+
+  if (!client_id || !name) {
+    return alert("Please select a client and enter a program name.");
+  }
+
+  const { error } = await supabaseClient
+    .from("programs")
+    .insert({ client_id, name, batch_name, duration_hours });
+
+  if (error) return alert(error.message);
+
+  document.getElementById("programName").value = "";
+  document.getElementById("batchName").value = "";
+  document.getElementById("durationHours").value = "";
+
+  await loadPrograms();
+  await loadDashboard();
+}
+
+async function loadPrograms() {
+  const { data, error } = await supabaseClient
+    .from("programs")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if (error) return;
+
+  const options = `<option value="">Select program</option>` +
+    (data || []).map(p =>
+      `<option value="${p.id}">${escapeHtml(p.name)}${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}</option>`
+    ).join("");
+
+  document.getElementById("questionProgram").innerHTML = options;
+  document.getElementById("linkProgram").innerHTML = options;
+
+  document.getElementById("programsList").innerHTML = tableHtml(
+    ["Program", "Batch", "Duration"],
+    (data || []).map(p => [
+      escapeHtml(p.name),
+      escapeHtml(p.batch_name || ""),
+      p.duration_hours || ""
+    ])
+  );
+}
+
+async function loadQuestions() {
+  const programId = document.getElementById("questionProgram").value;
+  if (!programId) {
+    document.getElementById("questionsList").innerHTML = "Select a program to view questions.";
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("questions")
+    .select("*")
+    .eq("program_id", programId)
+    .order("created_at");
+
+  if (error) return;
+
+  document.getElementById("questionsList").innerHTML = tableHtml(
+    ["Question", "Skill", "Difficulty"],
+    (data || []).map(q => [
+      escapeHtml(q.question_text),
+      escapeHtml(q.skill || ""),
+      escapeHtml(q.difficulty || "")
+    ])
+  );
+}
+
+async function loadParticipants() {
+  const { data, error } = await supabaseClient
+    .from("participants")
+    .select("*")
+    .order("created_at", { ascending:false });
+
+  if (error) return;
+
+  document.getElementById("participantsList").innerHTML = tableHtml(
+    ["Name", "Email", "Employee ID"],
+    (data || []).map(p => [
+      escapeHtml(p.name || ""),
+      escapeHtml(p.email || ""),
+      escapeHtml(p.employee_id || "")
+    ])
+  );
+}
+
+async function loadReports() {
+  const { data, error } = await supabaseClient
+    .from("assessment_results")
+    .select(`
+      overall_score,
+      proficiency_level,
+      created_at,
+      participants(name),
+      assessments(stage)
+    `)
+    .order("created_at", { ascending:false });
+
+  if (error) return;
+
+  document.getElementById("reportsList").innerHTML = tableHtml(
+    ["Participant", "Stage", "Score", "Level", "Date"],
+    (data || []).map(r => [
+      escapeHtml(r.participants?.name || ""),
+      escapeHtml(r.assessments?.stage || ""),
+      r.overall_score ?? "",
+      escapeHtml(r.proficiency_level || ""),
+      r.created_at ? new Date(r.created_at).toLocaleString() : ""
+    ])
+  );
+}
+
+/* =========================================================
+   COMMON ASSESSMENT LINKS
+   ========================================================= */
+
+async function createAssessmentLink() {
+  const program_id = document.getElementById("linkProgram").value;
+  const stage = document.getElementById("linkStage").value;
+  const timeLimit = document.getElementById("linkTimeLimit").value;
+  const expiryValue = document.getElementById("linkExpiry").value;
+
+  if (!program_id) {
+    return showLinkMessage("Please select a program.", true);
+  }
+
+  const payload = {
+    program_id,
+    stage,
+    active: true,
+    time_limit_minutes: timeLimit ? Number(timeLimit) : null,
+    expires_at: expiryValue ? new Date(expiryValue).toISOString() : null
+  };
+
+  const { data, error } = await supabaseClient
+    .from("assessment_links")
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    showLinkMessage(error.message, true);
+    return;
+  }
+
+  const url = `${location.origin}${location.pathname}?assessment=${data.access_token}`;
+
+  showLinkMessage(
+    `<strong>Assessment link created successfully.</strong>
+     <div class="link-box" id="newLink">${url}</div>
+     <div class="actions">
+       <button onclick="copyText('${url}')">Copy Link</button>
+     </div>`,
+    false
+  );
+
+  await loadAssessmentLinks();
+}
+
+async function loadAssessmentLinks() {
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from("assessment_links")
+    .select(`
+      *,
+      programs(name, batch_name)
+    `)
+    .order("created_at", { ascending:false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const container = document.getElementById("assessmentLinksList");
+
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p class="sub">No assessment links created yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Program</th>
+          <th>Stage</th>
+          <th>Time Limit</th>
+          <th>Expires</th>
+          <th>Status</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(l => {
+          const url = `${location.origin}${location.pathname}?assessment=${l.access_token}`;
+          return `
+            <tr>
+              <td>${escapeHtml(l.programs?.name || "")}</td>
+              <td>${escapeHtml(l.stage || "")}</td>
+              <td>${l.time_limit_minutes ? l.time_limit_minutes + " mins" : "No limit"}</td>
+              <td>${l.expires_at ? new Date(l.expires_at).toLocaleString() : "No expiry"}</td>
+              <td>${l.active ? "Active" : "Inactive"}</td>
+              <td>
+                <button onclick="copyText('${url}')">Copy</button>
+                <button onclick="toggleLink('${l.id}', ${!l.active})">
+                  ${l.active ? "Deactivate" : "Activate"}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+async function toggleLink(id, active) {
+  const { error } = await supabaseClient
+    .from("assessment_links")
+    .update({ active })
+    .eq("id", id);
+
+  if (error) return alert(error.message);
+  await loadAssessmentLinks();
+}
+
+function showLinkMessage(message, isError) {
+  document.getElementById("linkMessage").innerHTML =
+    `<div class="notice ${isError ? "error" : "success"}">${message}</div>`;
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    alert("Assessment link copied.");
+  } catch {
+    prompt("Copy this link:", text);
+  }
+}
+
+/* =========================================================
+   PARTICIPANT FLOW
+   ========================================================= */
+
+async function initParticipant(token) {
+  try {
+    await ensureSupabase();
+
+    const { data, error } = await supabaseClient.rpc(
+      "get_common_assessment_package",
+      { p_token: token }
+    );
+
+    if (error) throw error;
+
+    participantPackage = { ...data, token };
+
+    document.getElementById("participantLoading").classList.add("hidden");
+    document.getElementById("nameScreen").classList.remove("hidden");
+
+    document.getElementById("participantProgramName").textContent =
+      data.program?.name || "Assessment";
+
+    const limit = data.link?.time_limit_minutes;
+    const expiry = data.link?.expires_at;
+
+    document.getElementById("assessmentInstructions").textContent =
+      `${limit ? "Time limit: " + limit + " minutes. " : ""}
+       ${expiry ? "This assessment expires on " + new Date(expiry).toLocaleString() + "." : ""}`;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("participantLoading").classList.add("hidden");
+
+    const errorBox = document.getElementById("participantError");
+    errorBox.classList.remove("hidden");
+    errorBox.innerHTML = `
+      <h2>Assessment Unavailable</h2>
+      <p>${escapeHtml(err.message || "This assessment link is invalid or has expired.")}</p>
+    `;
+  }
+}
+
+async function startAssessment() {
+  const name = document.getElementById("participantName").value.trim();
+
+  if (!name) {
+    alert("Please enter your name.");
+    return;
+  }
+
+  const button = event.target;
+  button.disabled = true;
+  button.textContent = "Starting...";
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "start_common_assessment",
+      {
+        p_token: participantPackage.token,
+        p_name: name
+      }
+    );
+
+    if (error) throw error;
+
+    activeAssessmentId = data.assessment_id;
+
+    document.getElementById("nameScreen").classList.add("hidden");
+    document.getElementById("assessmentScreen").classList.remove("hidden");
+
+    document.getElementById("assessmentTitle").textContent =
+      participantPackage.program?.name || "Assessment";
+
+    document.getElementById("assessmentStage").textContent =
+      participantPackage.link?.stage === "post"
+        ? "Post Assessment"
+        : "Pre Assessment";
+
+    renderQuestions(participantPackage.questions || []);
+    startTimer(data.started_at, data.time_limit_minutes);
+
+  } catch (err) {
+    alert(err.message || "Unable to start assessment.");
+    button.disabled = false;
+    button.textContent = "Start Assessment";
+  }
+}
+
+function renderQuestions(questions) {
+  const container = document.getElementById("questionsContainer");
+
+  if (!questions.length) {
+    container.innerHTML = `<div class="card">No questions are available for this assessment.</div>`;
+    return;
+  }
+
+  container.innerHTML = questions.map((q, index) => {
+    const options = Array.isArray(q.options) ? q.options : [];
+
+    return `
+      <div class="question">
+        <strong>${index + 1}. ${escapeHtml(q.question_text)}</strong>
+        ${options.map((option, i) => `
+          <label class="option">
+            <input type="radio"
+                   name="q_${q.id}"
+                   value="${i}">
+            ${escapeHtml(String(option))}
+          </label>
+        `).join("")}
+      </div>
+    `;
+  }).join("");
+}
+
+function startTimer(startedAt, minutes) {
+  if (!minutes) {
+    document.getElementById("timer").textContent = "No time limit";
+    return;
+  }
+
+  const started = new Date(startedAt).getTime();
+  const deadline = started + (Number(minutes) * 60 * 1000);
+
+  function update() {
+    const remaining = Math.max(0, deadline - Date.now());
+    const totalSeconds = Math.floor(remaining / 1000);
+
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    document.getElementById("timer").textContent =
+      `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("timer").textContent = "Time Expired";
+      document.getElementById("submitAssessmentBtn").disabled = true;
+      alert("The time limit has expired. Your assessment can no longer be submitted.");
+    }
+  }
+
+  update();
+  timerInterval = setInterval(update, 1000);
+}
+
+async function submitAssessment() {
+  if (!activeAssessmentId) return;
+
+  const answers = {};
+
+  (participantPackage.questions || []).forEach(q => {
+    const selected = document.querySelector(`input[name="q_${q.id}"]:checked`);
+    if (selected) {
+      answers[q.id] = Number(selected.value);
+    }
+  });
+
+  const button = document.getElementById("submitAssessmentBtn");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "submit_common_assessment",
+      {
+        p_assessment_id: activeAssessmentId,
+        p_answers: answers
+      }
+    );
+
+    if (error) throw error;
+
+    clearInterval(timerInterval);
+
+    document.getElementById("assessmentScreen").classList.add("hidden");
+    document.getElementById("resultScreen").classList.remove("hidden");
+
+    document.getElementById("resultScore").textContent =
+      `Score: ${data.score}%`;
+
+    document.getElementById("resultDetails").textContent =
+      `You answered ${data.correct} out of ${data.total} questions correctly.`;
+
+  } catch (err) {
+    alert(err.message || "Unable to submit assessment.");
+    button.disabled = false;
+    button.textContent = "Submit Assessment";
+  }
+}
+
+/* =========================================================
+   NAVIGATION & HELPERS
+   ========================================================= */
+
+document.querySelectorAll("nav button[data-page]").forEach(button => {
+  button.addEventListener("click", async () => {
+    document.querySelectorAll("nav button[data-page]").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(button.dataset.page).classList.add("active");
+
+    if (button.dataset.page === "dashboard") await loadDashboard();
+    if (button.dataset.page === "clients") await loadClients();
+    if (button.dataset.page === "programs") await loadPrograms();
+    if (button.dataset.page === "participants") await loadParticipants();
+    if (button.dataset.page === "reports") await loadReports();
+    if (button.dataset.page === "assessment-links") {
+      await loadPrograms();
+      await loadAssessmentLinks();
+    }
+  });
+});
+
+function tableHtml(headers, rows) {
+  if (!rows.length) return `<p class="sub">No records found.</p>`;
+
+  return `
+    <table>
+      <thead>
+        <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>${row.map(cell => `<td>${cell ?? ""}</td>`).join("")}</tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 </script>
-</body></html>
+
+</body>
+</html>
