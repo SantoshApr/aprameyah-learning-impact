@@ -605,7 +605,59 @@ async function loadQuestions() {
     ])
   );
 }
+async function addQuestion() {
+  const program_id = document.getElementById("questionProgram").value;
+  const question_text = document.getElementById("newQuestionText").value.trim();
 
+  const options = [
+    document.getElementById("option1").value.trim(),
+    document.getElementById("option2").value.trim(),
+    document.getElementById("option3").value.trim(),
+    document.getElementById("option4").value.trim()
+  ];
+
+  const correct_option = Number(
+    document.getElementById("correctOption").value
+  );
+
+  const skill = document.getElementById("questionSkill").value.trim() || null;
+  const difficulty = document.getElementById("questionDifficulty").value || null;
+
+  if (!program_id || !question_text || options.some(option => !option)) {
+    alert("Please select a program and complete the question and all four options.");
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("questions")
+    .insert({
+      program_id,
+      question_text,
+      options,
+      correct_option,
+      skill,
+      difficulty,
+      active: true
+    });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Question added successfully.");
+
+  document.getElementById("newQuestionText").value = "";
+  document.getElementById("option1").value = "";
+  document.getElementById("option2").value = "";
+  document.getElementById("option3").value = "";
+  document.getElementById("option4").value = "";
+  document.getElementById("correctOption").value = "0";
+  document.getElementById("questionSkill").value = "";
+  document.getElementById("questionDifficulty").value = "";
+
+  await loadQuestions();
+}
 async function loadParticipants() {
   const { data, error } = await supabaseClient
     .from("participants")
