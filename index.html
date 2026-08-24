@@ -223,10 +223,74 @@ th{font-size:13px;color:var(--muted)}
   <h1>Questions</h1>
   <p class="sub">Manage assessment questions.</p>
 
+  <!-- Add Question -->
   <div class="card">
+    <h2>Add Question</h2>
+
     <label>Select Program</label>
     <select id="questionProgram" onchange="loadQuestions()"></select>
-    <div id="questionsList" style="margin-top:20px"></div>
+
+    <div style="margin-top:20px">
+      <label>Question</label>
+      <textarea id="newQuestionText" placeholder="Enter your question"></textarea>
+    </div>
+
+    <div class="row" style="margin-top:15px">
+      <div>
+        <label>Option 1</label>
+        <input id="option1" placeholder="Enter option 1">
+      </div>
+      <div>
+        <label>Option 2</label>
+        <input id="option2" placeholder="Enter option 2">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:15px">
+      <div>
+        <label>Option 3</label>
+        <input id="option3" placeholder="Enter option 3">
+      </div>
+      <div>
+        <label>Option 4</label>
+        <input id="option4" placeholder="Enter option 4">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:15px">
+      <div>
+        <label>Correct Answer</label>
+        <select id="correctOption">
+          <option value="0">Option 1</option>
+          <option value="1">Option 2</option>
+          <option value="2">Option 3</option>
+          <option value="3">Option 4</option>
+        </select>
+      </div>
+      <div>
+        <label>Skill (Optional)</label>
+        <input id="questionSkill" placeholder="Example: Prompt Engineering">
+      </div>
+      <div>
+        <label>Difficulty (Optional)</label>
+        <select id="questionDifficulty">
+          <option value="">Select difficulty</option>
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="addQuestion()">Add Question</button>
+    </div>
+  </div>
+
+  <!-- Existing Questions -->
+  <div class="card">
+    <h2>Existing Questions</h2>
+    <div id="questionsList">Select a program to view questions.</div>
   </div>
 </section>
 
