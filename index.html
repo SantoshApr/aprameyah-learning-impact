@@ -6,6 +6,8 @@
 <title>Aprameyah Learning Impact Platform</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
   <script>
 const SUPABASE_URL = "https://sovubfuwbitivxunqygx.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_62uuiBH9jR37uBjTWf2k3Q_7wVpJPl_";
@@ -327,8 +329,13 @@ th{font-size:13px;color:var(--muted)}
   </div>
 
   <div class="card">
-    <div id="reportsList">Loading reports...</div>
+  <div class="actions" style="margin-bottom:15px">
+    <button class="primary" onclick="exportReportPDF()">
+      Export Report as PDF
+    </button>
   </div>
+  <div id="reportsList">Loading reports...</div>
+</div>
 </section>
 <!-- ASSESSMENT LINKS -->
 <section id="assessment-links" class="page">
@@ -843,6 +850,216 @@ async function loadReportPrograms() {
     ).join("");
 
   await loadReports();
+}
+async function exportReportPDF() {
+  const clientId = document.getElementById("reportClient")?.value || "";
+  const programId = document.getElementById("reportProgram")?.value || "";
+
+  const { data: results, error } = await supabaseClient
+    .from("assessment_results")
+    .select(`
+      overall_score,
+      proficiency_level,
+      created_at,
+      assessment_id,
+      participant_id
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    alert("Unable to load report data: " + error.message);
+    return;
+  }
+
+  const participantIds = [...new Set(
+    (results || []).map(r => r.participant_id).filter(Boolean)
+  )];
+
+  const assessmentIds = [...new Set(
+    (results || []).map(r => r.assessment_id).filter(Boolean)
+  )];
+
+  const [{ data: participants, error: participantsError },
+         { data: assessments, error: assessmentsError }] = await Promise.all([
+    participantIds.length
+      ? supabaseClient
+          .from("participants")
+          .select("id, name, program_id")
+          .in("id", participantIds)
+      : Promise.resolve({ data: [], error: null }),
+
+    assessmentIds.length
+      ? supabaseClient
+          .from("assessments")
+          .select("id, stage")
+          .in("id", assessmentIds)
+      : Promise.resolve({ data: [], error: null })
+  ]);
+
+  if (participantsError || assessmentsError) {
+    alert(
+      "Unable to load report details: " +
+      (participantsError?.message || assessmentsError?.message)
+    );
+    return;
+  }
+
+  const programIds = [...new Set(
+    (participants || []).map(p => p.program_id).filter(Boolean)
+  )];
+
+  const { data: programs, error: programsError } = programIds.length
+    ? await supabaseClient
+        .from("programs")
+        .select("id, name, client_id")
+        .in("id", programIds)
+    : { data: [], error: null };
+
+  if (programsError) {
+    alert("Unable to load programs: " + programsError.message);
+    return;
+  }
+
+  const clientIds = [...new Set(
+    (programs || []).map(p => p.client_id).filter(Boolean)
+  )];
+
+  const { data: clients, error: clientsError } = clientIds.length
+    ? await supabaseClient
+        .from("clients")
+        .select("id, name")
+        .in("id", clientIds)
+    : { data: [], error: null };
+
+  if (clientsError) {
+    alert("Unable to load clients: " + clientsError.message);
+    return;
+  }
+
+  const participantMap = Object.fromEntries(
+    (participants || []).map(p => [p.id, p])
+  );
+  const assessmentMap = Object.fromEntries(
+    (assessments || []).map(a => [a.id, a])
+  );
+  const programMap = Object.fromEntries(
+    (programs || []).map(p => [p.id, p])
+  );
+  const clientMap = Object.fromEntries(
+    (clients || []).map(c => [c.id, c])
+  );
+
+  const filteredResults = (results || []).filter(r => {
+    const participant = participantMap[r.participant_id];
+    const program = programMap[participant?.program_id];
+
+    return participant &&
+      program &&
+      (!clientId || program.client_id === clientId) &&
+      (!programId || program.id === programId);
+  });
+
+  if (!filteredResults.length) {
+    alert("No report data is available for the selected filters.");
+    return;
+  }
+
+  // Summary calculations
+  const scores = filteredResults.map(r => Number(r.overall_score) || 0);
+  const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const highest = Math.max(...scores);
+  const lowest = Math.min(...scores);
+
+  const preScores = filteredResults
+    .filter(r => assessmentMap[r.assessment_id]?.stage === "pre")
+    .map(r => Number(r.overall_score));
+
+  const postScores = filteredResults
+    .filter(r => assessmentMap[r.assessment_id]?.stage === "post")
+    .map(r => Number(r.overall_score));
+
+  const preAverage = preScores.length
+    ? preScores.reduce((a, b) => a + b, 0) / preScores.length
+    : null;
+
+  const postAverage = postScores.length
+    ? postScores.reduce((a, b) => a + b, 0) / postScores.length
+    : null;
+
+  // Get selected names
+  const selectedClient = clientId
+    ? document.getElementById("reportClient").selectedOptions[0]?.textContent
+    : "All Clients";
+
+  const selectedProgram = programId
+    ? document.getElementById("reportProgram").selectedOptions[0]?.textContent
+    : "All Programs";
+
+  // Create PDF
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Aprameyah Learning Impact Report", 14, 20);
+
+  doc.setFontSize(11);
+  doc.text(`Client: ${selectedClient}`, 14, 30);
+  doc.text(`Program: ${selectedProgram}`, 14, 37);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 44);
+
+  doc.setFontSize(14);
+  doc.text("Summary", 14, 58);
+
+  doc.setFontSize(11);
+  doc.text(`Total Assessment Records: ${filteredResults.length}`, 14, 68);
+  doc.text(`Average Score: ${average.toFixed(2)}%`, 14, 76);
+  doc.text(`Highest Score: ${highest.toFixed(2)}%`, 14, 84);
+  doc.text(`Lowest Score: ${lowest.toFixed(2)}%`, 14, 92);
+  doc.text(
+    `Pre-Assessment Average: ${preAverage !== null ? preAverage.toFixed(2) + "%" : "N/A"}`,
+    14,
+    100
+  );
+  doc.text(
+    `Post-Assessment Average: ${postAverage !== null ? postAverage.toFixed(2) + "%" : "N/A"}`,
+    14,
+    108
+  );
+
+  const tableRows = filteredResults.map(r => {
+    const participant = participantMap[r.participant_id];
+    const assessment = assessmentMap[r.assessment_id];
+
+    return [
+      participant?.name || "",
+      assessment?.stage === "pre" ? "Pre" : "Post",
+      `${Number(r.overall_score).toFixed(2)}%`,
+      r.proficiency_level || "",
+      r.created_at
+        ? new Date(r.created_at).toLocaleDateString()
+        : ""
+    ];
+  });
+
+  doc.autoTable({
+    startY: 118,
+    head: [[
+      "Participant",
+      "Stage",
+      "Score",
+      "Level",
+      "Date"
+    ]],
+    body: tableRows,
+    styles: { fontSize: 8 },
+    headStyles: { fontStyle: "bold" }
+  });
+
+  const safeName = (selectedProgram || "report")
+    .replace(/[^a-z0-9]/gi, "_")
+    .toLowerCase();
+
+  doc.save(`${safeName}_learning_impact_report.pdf`);
 }
   /* =========================================================
    COMMON ASSESSMENT LINKS
