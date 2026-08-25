@@ -692,7 +692,21 @@ async function addQuestion() {
   }
 
 
-  async function loadQuestionBank() {
+ 
+  alert("Question added successfully.");
+
+  document.getElementById("newQuestionText").value = "";
+  document.getElementById("option1").value = "";
+  document.getElementById("option2").value = "";
+  document.getElementById("option3").value = "";
+  document.getElementById("option4").value = "";
+  document.getElementById("correctOption").value = "0";
+  document.getElementById("questionSkill").value = "";
+  document.getElementById("questionDifficulty").value = "";
+
+  await loadQuestions();
+}
+   async function loadQuestionBank() {
   const programId = document.getElementById("questionProgram").value;
 
   if (!programId) {
@@ -800,19 +814,6 @@ async function addSelectedBankQuestions() {
 
   await loadQuestions();
   await loadQuestionBank();
-}
-  alert("Question added successfully.");
-
-  document.getElementById("newQuestionText").value = "";
-  document.getElementById("option1").value = "";
-  document.getElementById("option2").value = "";
-  document.getElementById("option3").value = "";
-  document.getElementById("option4").value = "";
-  document.getElementById("correctOption").value = "0";
-  document.getElementById("questionSkill").value = "";
-  document.getElementById("questionDifficulty").value = "";
-
-  await loadQuestions();
 }
 async function loadParticipants() {
   const { data, error } = await supabaseClient
