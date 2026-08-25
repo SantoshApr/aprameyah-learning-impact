@@ -1084,7 +1084,7 @@ async function loadReports() {
       const program = programMap[participant?.program_id];
 
       return [
-        escapeHtml(participant?.name || ""),
+        `<a href="#" onclick="viewParticipantAnswers('${r.participant_id}'); return false;">${escapeHtml(participant?.name || "")}</a>`,
         escapeHtml(program?.name || ""),
         escapeHtml(assessment?.stage || ""),
         r.overall_score ?? "",
@@ -1093,6 +1093,26 @@ async function loadReports() {
       ];
     })
   );
+}
+  async function viewParticipantAnswers(participantId) {
+  const { data, error } = await supabaseClient
+    .from("assessment_results")
+    .select("*")
+    .eq("participant_id", participantId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error || !data || !data.length) {
+    alert("Unable to find this participant's answer sheet.");
+    return;
+  }
+
+  const result = data[0];
+
+  // Open the participant's answer sheet screen
+  currentParticipantResult = result;
+showPage("answerSheetPage");
+loadParticipantAnswerSheet(result);
 }
   async function loadReportClients() {
   const { data, error } = await supabaseClient
