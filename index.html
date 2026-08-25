@@ -315,6 +315,33 @@ th{font-size:13px;color:var(--muted)}
     Select a program above and click <strong>Load Question Bank</strong>.
   </div>
 </div>
+  <div class="card">
+  <h2>Import Questions from Excel</h2>
+
+  <p class="sub">
+    Select a program above, choose an Excel file, and import multiple questions at once.
+  </p>
+
+  <label>Select Excel File</label>
+  <input
+    type="file"
+    id="excelQuestionFile"
+    accept=".xlsx,.xls"
+  >
+
+  <p class="small">
+    Required columns: Question, Option 1, Option 2, Option 3, Option 4,
+    Correct Answer. Optional columns: Skill, Difficulty.
+  </p>
+
+  <div class="actions">
+    <button class="primary" onclick="importQuestionsFromExcel()">
+      Import Questions from Excel
+    </button>
+  </div>
+
+  <div id="excelImportMessage"></div>
+</div>
 </section>
 
 <!-- PARTICIPANTS -->
@@ -815,6 +842,139 @@ async function addSelectedBankQuestions() {
 
   await loadQuestions();
   await loadQuestionBank();
+}
+  async function importQuestionsFromExcel() {
+  const programId = document.getElementById("questionProgram").value;
+  const fileInput = document.getElementById("excelQuestionFile");
+  const messageBox = document.getElementById("excelImportMessage");
+
+  if (!programId) {
+    alert("Please select a program first.");
+    return;
+  }
+
+  if (!fileInput.files || !fileInput.files[0]) {
+    alert("Please select an Excel file first.");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  messageBox.innerHTML = `<p class="small">Reading Excel file...</p>`;
+
+  try {
+    const reader = new FileReader();
+
+    reader.onload = async function(event) {
+      try {
+        const workbook = XLSX.read(event.target.result, { type: "array" });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert Excel rows into JavaScript objects using the first row as headings
+        const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+        if (!rows.length) {
+          messageBox.innerHTML =
+            `<div class="notice error">The Excel file does not contain any questions.</div>`;
+          return;
+        }
+
+        const questionsToInsert = [];
+        const errors = [];
+
+        rows.forEach((row, index) => {
+          const question = String(row["Question"] || "").trim();
+          const option1 = String(row["Option 1"] || "").trim();
+          const option2 = String(row["Option 2"] || "").trim();
+          const option3 = String(row["Option 3"] || "").trim();
+          const option4 = String(row["Option 4"] || "").trim();
+          const correctAnswer = Number(row["Correct Answer"]);
+          const skill = String(row["Skill"] || "").trim();
+          const difficulty = String(row["Difficulty"] || "").trim();
+
+          const rowNumber = index + 2; // Excel row number, including heading
+
+          if (
+            !question ||
+            !option1 ||
+            !option2 ||
+            !option3 ||
+            !option4 ||
+            ![1, 2, 3, 4].includes(correctAnswer)
+          ) {
+            errors.push(
+              `Row ${rowNumber}: Please complete Question, all four options, and Correct Answer (1–4).`
+            );
+            return;
+          }
+
+          questionsToInsert.push({
+            program_id: programId,
+            question_text: question,
+            options: [option1, option2, option3, option4],
+            correct_answer: correctAnswer - 1,
+            skill: skill || null,
+            difficulty: difficulty || null
+          });
+        });
+
+        if (errors.length) {
+          messageBox.innerHTML = `
+            <div class="notice error">
+              <strong>Import stopped.</strong><br>
+              ${errors.slice(0, 10).map(e => escapeHtml(e)).join("<br>")}
+              ${errors.length > 10 ? `<br>...and ${errors.length - 10} more errors.` : ""}
+            </div>
+          `;
+          return;
+        }
+
+        if (!questionsToInsert.length) {
+          messageBox.innerHTML =
+            `<div class="notice error">No valid questions were found to import.</div>`;
+          return;
+        }
+
+        const { error } = await supabaseClient
+          .from("questions")
+          .insert(questionsToInsert);
+
+        if (error) {
+          throw error;
+        }
+
+        messageBox.innerHTML = `
+          <div class="notice success">
+            <strong>Success!</strong> ${questionsToInsert.length} question(s) were imported successfully.
+          </div>
+        `;
+
+        fileInput.value = "";
+
+        // Refresh the existing questions list
+        await loadQuestions();
+
+      } catch (err) {
+        console.error(err);
+        messageBox.innerHTML = `
+          <div class="notice error">
+            Unable to import questions: ${escapeHtml(err.message || "Unknown error")}
+          </div>
+        `;
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+
+  } catch (err) {
+    console.error(err);
+    messageBox.innerHTML = `
+      <div class="notice error">
+        Unable to read the Excel file.
+      </div>
+    `;
+  }
 }
 async function loadParticipants() {
   const { data, error } = await supabaseClient
