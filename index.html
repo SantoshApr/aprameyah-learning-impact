@@ -306,12 +306,30 @@ th{font-size:13px;color:var(--muted)}
 <!-- REPORTS -->
 <section id="reports" class="page">
   <h1>Reports</h1>
-  <p class="sub">Assessment results and scores.</p>
+  <p class="sub">View assessment results by client and program.</p>
+
   <div class="card">
-    <div id="reportsList"></div>
+    <div class="row">
+      <div>
+        <label>Client</label>
+        <select id="reportClient" onchange="loadReportPrograms()">
+          <option value="">All Clients</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Program</label>
+        <select id="reportProgram" onchange="loadReports()">
+          <option value="">All Programs</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="reportsList">Loading reports...</div>
   </div>
 </section>
-
 <!-- ASSESSMENT LINKS -->
 <section id="assessment-links" class="page">
   <h1>Common Assessment Links</h1>
@@ -477,6 +495,7 @@ async function loadAllAdminData() {
     loadPrograms(),
     loadParticipants(),
     loadReports(),
+    loadReportClients(),
     loadAssessmentLinks()
   ]);
 }
@@ -677,6 +696,9 @@ async function loadParticipants() {
 }
 
 async function loadReports() {
+  const clientId = document.getElementById("reportClient")?.value || "";
+  const programId = document.getElementById("reportProgram")?.value || "";
+
   const { data, error } = await supabaseClient
     .from("assessment_results")
     .select(`
@@ -686,7 +708,7 @@ async function loadReports() {
       assessment_id,
       participant_id
     `)
-    .order("created_at", { ascending:false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Reports error:", error);
@@ -695,57 +717,134 @@ async function loadReports() {
     return;
   }
 
-  if (!data || data.length === 0) {
-    document.getElementById("reportsList").innerHTML =
-      `<p class="sub">No assessment results found yet.</p>`;
-    return;
-  }
-
-  const participantIds = [...new Set(data.map(r => r.participant_id).filter(Boolean))];
-  const assessmentIds = [...new Set(data.map(r => r.assessment_id).filter(Boolean))];
+  const participantIds = [...new Set((data || []).map(r => r.participant_id).filter(Boolean))];
+  const assessmentIds = [...new Set((data || []).map(r => r.assessment_id).filter(Boolean))];
 
   const [{ data: participants, error: participantsError },
          { data: assessments, error: assessmentsError }] = await Promise.all([
-    supabaseClient
-      .from("participants")
-      .select("id, name")
-      .in("id", participantIds),
+    participantIds.length
+      ? supabaseClient.from("participants").select("id, name, program_id").in("id", participantIds)
+      : Promise.resolve({ data: [], error: null }),
 
-    supabaseClient
-      .from("assessments")
-      .select("id, stage")
-      .in("id", assessmentIds)
+    assessmentIds.length
+      ? supabaseClient.from("assessments").select("id, stage").in("id", assessmentIds)
+      : Promise.resolve({ data: [], error: null })
   ]);
 
   if (participantsError || assessmentsError) {
     const message = participantsError?.message || assessmentsError?.message;
-    console.error("Reports lookup error:", message);
     document.getElementById("reportsList").innerHTML =
       `<p class="notice error">Unable to load report details: ${escapeHtml(message)}</p>`;
     return;
   }
 
+  const programIds = [...new Set((participants || []).map(p => p.program_id).filter(Boolean))];
+
+  const { data: programs, error: programsError } = programIds.length
+    ? await supabaseClient
+        .from("programs")
+        .select("id, name, client_id")
+        .in("id", programIds)
+    : { data: [], error: null };
+
+  if (programsError) {
+    document.getElementById("reportsList").innerHTML =
+      `<p class="notice error">${escapeHtml(programsError.message)}</p>`;
+    return;
+  }
+
+  const filteredPrograms = (programs || []).filter(p =>
+    (!clientId || p.client_id === clientId) &&
+    (!programId || p.id === programId)
+  );
+
+  const allowedProgramIds = new Set(filteredPrograms.map(p => p.id));
+
   const participantMap = Object.fromEntries(
-    (participants || []).map(p => [p.id, p.name])
+    (participants || []).map(p => [p.id, p])
   );
 
   const assessmentMap = Object.fromEntries(
-    (assessments || []).map(a => [a.id, a.stage])
+    (assessments || []).map(a => [a.id, a])
   );
+
+  const programMap = Object.fromEntries(
+    (programs || []).map(p => [p.id, p])
+  );
+
+  const filteredData = (data || []).filter(r => {
+    const participant = participantMap[r.participant_id];
+    return participant && allowedProgramIds.has(participant.program_id);
+  });
 
   document.getElementById("reportsList").innerHTML = tableHtml(
-    ["Participant", "Stage", "Score", "Level", "Date"],
-    data.map(r => [
-      escapeHtml(participantMap[r.participant_id] || ""),
-      escapeHtml(assessmentMap[r.assessment_id] || ""),
-      r.overall_score ?? "",
-      escapeHtml(r.proficiency_level || ""),
-      r.created_at ? new Date(r.created_at).toLocaleString() : ""
-    ])
+    ["Participant", "Program", "Stage", "Score", "Level", "Date"],
+    filteredData.map(r => {
+      const participant = participantMap[r.participant_id];
+      const assessment = assessmentMap[r.assessment_id];
+      const program = programMap[participant?.program_id];
+
+      return [
+        escapeHtml(participant?.name || ""),
+        escapeHtml(program?.name || ""),
+        escapeHtml(assessment?.stage || ""),
+        r.overall_score ?? "",
+        escapeHtml(r.proficiency_level || ""),
+        r.created_at ? new Date(r.created_at).toLocaleString() : ""
+      ];
+    })
   );
 }
+  async function loadReportClients() {
+  const { data, error } = await supabaseClient
+    .from("clients")
+    .select("id, name")
+    .order("name");
 
-/* =========================================================
+  if (error) {
+    console.error("Unable to load report clients:", error);
+    return;
+  }
+
+  const select = document.getElementById("reportClient");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">All Clients</option>` +
+    (data || []).map(c =>
+      `<option value="${c.id}">${escapeHtml(c.name)}</option>`
+    ).join("");
+}
+
+async function loadReportPrograms() {
+  const clientId = document.getElementById("reportClient")?.value || "";
+
+  let query = supabaseClient
+    .from("programs")
+    .select("id, name, batch_name, client_id")
+    .order("name");
+
+  if (clientId) {
+    query = query.eq("client_id", clientId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Unable to load report programs:", error);
+    return;
+  }
+
+  const select = document.getElementById("reportProgram");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">All Programs</option>` +
+    (data || []).map(p =>
+      `<option value="${p.id}">${escapeHtml(p.name)}${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}</option>`
+    ).join("");
+
+  await loadReports();
+}
+  /* =========================================================
    COMMON ASSESSMENT LINKS
    ========================================================= */
 
@@ -1083,7 +1182,10 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
     if (button.dataset.page === "clients") await loadClients();
     if (button.dataset.page === "programs") await loadPrograms();
     if (button.dataset.page === "participants") await loadParticipants();
-    if (button.dataset.page === "reports") await loadReports();
+    if (button.dataset.page === "reports") {
+  await loadReportClients();
+  await loadReportPrograms();
+} 
     if (button.dataset.page === "assessment-links") {
       await loadPrograms();
       await loadAssessmentLinks();
