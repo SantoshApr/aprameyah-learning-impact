@@ -294,6 +294,26 @@ th{font-size:13px;color:var(--muted)}
     <h2>Existing Questions</h2>
     <div id="questionsList">Select a program to view questions.</div>
   </div>
+  <div class="card">
+  <h2>Add from Existing Question Bank</h2>
+  <p class="sub">
+    Select questions from your existing questions and add them to the selected program.
+  </p>
+
+  <div class="actions">
+    <button class="primary" onclick="loadQuestionBank()">
+      Load Question Bank
+    </button>
+
+    <button class="success" onclick="addSelectedBankQuestions()">
+      Add Selected Questions to Program
+    </button>
+  </div>
+
+  <div id="questionBankList" style="margin-top:20px">
+    Select a program above and click <strong>Load Question Bank</strong>.
+  </div>
+</div>
 </section>
 
 <!-- PARTICIPANTS -->
@@ -671,6 +691,116 @@ async function addQuestion() {
     return;
   }
 
+
+  async function loadQuestionBank() {
+  const programId = document.getElementById("questionProgram").value;
+
+  if (!programId) {
+    alert("Please select a program first.");
+    return;
+  }
+
+  const container = document.getElementById("questionBankList");
+  container.innerHTML = "Loading existing questions...";
+
+  // Load questions that belong to OTHER programs
+  const { data, error } = await supabaseClient
+    .from("questions")
+    .select("*")
+    .neq("program_id", programId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    container.innerHTML =
+      `<div class="notice error">${escapeHtml(error.message)}</div>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML =
+      `<p class="sub">No existing questions are available in the Question Bank.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <p class="small">
+      Select one or more questions below, then click
+      <strong>Add Selected Questions to Program</strong>.
+    </p>
+
+    ${data.map(q => `
+      <div class="question">
+        <label class="option">
+          <input
+            type="checkbox"
+            class="bankQuestion"
+            value="${q.id}"
+          >
+          <strong>${escapeHtml(q.question_text)}</strong>
+          <br>
+          <span class="small">
+            ${escapeHtml(q.skill || "")}
+            ${q.difficulty ? " • " + escapeHtml(q.difficulty) : ""}
+          </span>
+        </label>
+      </div>
+    `).join("")}
+  `;
+}
+
+
+async function addSelectedBankQuestions() {
+  const programId = document.getElementById("questionProgram").value;
+
+  if (!programId) {
+    alert("Please select the program you want to add questions to.");
+    return;
+  }
+
+  const selected = [
+    ...document.querySelectorAll(".bankQuestion:checked")
+  ].map(input => input.value);
+
+  if (selected.length === 0) {
+    alert("Please select at least one question from the Question Bank.");
+    return;
+  }
+
+  const { data: sourceQuestions, error: loadError } =
+    await supabaseClient
+      .from("questions")
+      .select("*")
+      .in("id", selected);
+
+  if (loadError) {
+    alert("Unable to load selected questions: " + loadError.message);
+    return;
+  }
+
+  // Create copies of the selected questions for the new program
+  const questionsToInsert = sourceQuestions.map(q => ({
+    program_id: programId,
+    question_text: q.question_text,
+    options: q.options,
+    correct_answer: q.correct_answer,
+    skill: q.skill,
+    difficulty: q.difficulty
+  }));
+
+  const { error: insertError } = await supabaseClient
+    .from("questions")
+    .insert(questionsToInsert);
+
+  if (insertError) {
+    alert("Unable to add questions: " + insertError.message);
+    return;
+  }
+
+  alert(`${questionsToInsert.length} question(s) added successfully!`);
+
+  await loadQuestions();
+  await loadQuestionBank();
+}
   alert("Question added successfully.");
 
   document.getElementById("newQuestionText").value = "";
