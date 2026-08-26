@@ -1762,65 +1762,102 @@ function escapeHtml(value) {
   console.log("Loading answer sheet for:", result);
 
   showPage("answerSheetPage");
-const nameElement = document.getElementById("answerSheetParticipantName");
-const contentElement = document.getElementById("answerSheetContent");
-  
-    if (nameElement) {
-    nameElement.textContent = result.participant_name
-        ? `Participant: ${result.participant_name}`
-        : "";
-}
+
+  const nameElement = document.getElementById("answerSheetParticipantName");
+  const contentElement = document.getElementById("answerSheetContent");
+
+  if (nameElement) {
+    nameElement.textContent = "Loading participant...";
+  }
+
   if (contentElement) {
+    contentElement.innerHTML = "<p>Loading individual responses...</p>";
+  }
+
+  try {
+    // Get participant name
+    const { data: participant, error: participantError } = await supabaseClient
+      .from("participants")
+      .select("name")
+      .eq("id", result.participant_id)
+      .single();
+
+    if (participantError) throw participantError;
+
+    if (nameElement) {
+      nameElement.textContent = `Participant: ${participant?.name || "Participant"}`;
+    }
+
+    // Get every question and the participant's response
+    const { data: responses, error: responsesError } = await supabaseClient
+      .from("assessment_responses")
+      .select(`
+        selected_option,
+        is_correct,
+        questions (
+          question_text,
+          options,
+          correct_option
+        )
+      `)
+      .eq("assessment_id", result.assessment_id);
+
+    if (responsesError) throw responsesError;
+
+    const questionsHtml = !responses || responses.length === 0
+      ? "<p>No individual answers were found.</p>"
+      : responses.map((response, index) => {
+          const question = response.questions;
+          const selectedAnswer =
+            response.selected_option !== null
+              ? question.options[response.selected_option]
+              : "Not answered";
+
+          const correctAnswer =
+            question.options[question.correct_option];
+
+          return `
+            <div class="card" style="margin-bottom: 16px;">
+              <h3>Question ${index + 1}</h3>
+
+              <p><strong>${question.question_text}</strong></p>
+
+              <p><strong>Participant's Answer:</strong><br>
+                ${selectedAnswer}
+              </p>
+
+              <p><strong>Correct Answer:</strong><br>
+                ${correctAnswer}
+              </p>
+
+              <p><strong>Result:</strong>
+                ${response.is_correct ? "✓ Correct" : "✗ Incorrect"}
+              </p>
+            </div>
+          `;
+        }).join("");
+
     contentElement.innerHTML = `
       <div class="card">
         <h2>Assessment Summary</h2>
-
         <p><strong>Overall Score:</strong> ${result.overall_score ?? "Not available"}%</p>
         <p><strong>Proficiency Level:</strong> ${result.proficiency_level ?? "Not available"}</p>
 
-        <h3>Strengths</h3>
-        <p>${
-          Array.isArray(result.strengths) && result.strengths.length
-            ? result.strengths.join(", ")
-            : "No strengths recorded."
-        }</p>
-
-        <h3>Development Areas</h3>
-        <p>${
-          Array.isArray(result.development_areas) && result.development_areas.length
-            ? result.development_areas.join(", ")
-            : "No development areas recorded."
-        }</p>
-
         <h3>Recommendation</h3>
         <p>${result.recommendation ?? "No recommendation available."}</p>
-        <h3>Question-wise Responses</h3>
-${
-  Array.isArray(result.responses) && result.responses.length
-    ? result.responses.map((response, index) => `
-        <div class="question-response-card" style="margin-bottom: 16px; padding: 16px; border: 1px solid #ddd; border-radius: 8px;">
-          <p><strong>Question ${index + 1}:</strong> ${response.question_text || "Question not available"}</p>
-
-          <p>
-            <strong>Your Answer:</strong>
-            ${response.selected_answer || "Not answered"}
-          </p>
-
-          <p>
-            <strong>Correct Answer:</strong>
-            ${response.correct_answer || "Not available"}
-          </p>
-
-          <p>
-            <strong>Result:</strong>
-            ${response.is_correct ? "✓ Correct" : "✗ Incorrect"}
-          </p>
-        </div>
-      `).join("")
-    : "<p>No question-wise responses recorded.</p>"
-}
       </div>
+
+      <h2 style="margin-top: 24px;">Individual Question Responses</h2>
+      ${questionsHtml}
     `;
+
+  } catch (error) {
+    console.error("Error loading answer sheet:", error);
+
+    if (contentElement) {
+      contentElement.innerHTML =
+        `<p class="notice error">Unable to load individual answers: ${error.message}</p>`;
+    }
   }
 }
 </script>
