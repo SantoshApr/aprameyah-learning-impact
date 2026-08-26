@@ -1794,6 +1794,31 @@ const contentElement = document.getElementById("answerSheetContent");
 
         <h3>Recommendation</h3>
         <p>${result.recommendation ?? "No recommendation available."}</p>
+        <h3>Question-wise Responses</h3>
+${
+  Array.isArray(result.responses) && result.responses.length
+    ? result.responses.map((response, index) => `
+        <div class="question-response-card" style="margin-bottom: 16px; padding: 16px; border: 1px solid #ddd; border-radius: 8px;">
+          <p><strong>Question ${index + 1}:</strong> ${response.question_text || "Question not available"}</p>
+
+          <p>
+            <strong>Your Answer:</strong>
+            ${response.selected_answer || "Not answered"}
+          </p>
+
+          <p>
+            <strong>Correct Answer:</strong>
+            ${response.correct_answer || "Not available"}
+          </p>
+
+          <p>
+            <strong>Result:</strong>
+            ${response.is_correct ? "✓ Correct" : "✗ Incorrect"}
+          </p>
+        </div>
+      `).join("")
+    : "<p>No question-wise responses recorded.</p>"
+}
       </div>
     `;
   }
