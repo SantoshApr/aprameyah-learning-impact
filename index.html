@@ -1758,6 +1758,12 @@ function escapeHtml(value) {
     targetPage.classList.add('active');
   }
 }
+  async function returnToReports() {
+  showPage("reportsPage");
+
+  await loadReportClients();
+  await loadReportPrograms();
+}
   async function loadParticipantAnswerSheet(result) {
   console.log("Loading answer sheet for:", result);
 
