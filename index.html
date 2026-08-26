@@ -1876,7 +1876,9 @@ function escapeHtml(value) {
     </div>
 
     <br>
-   <button onclick="returnToReports()">← Back to Reports</button>
+   <button onclick="showPage('reportsPage'); document.querySelector('[data-page=&quot;reportsPage&quot;]')?.click();">
+  ← Back to Reports
+</button>
 </div>
 </body>
 </html>
