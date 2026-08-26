@@ -1807,7 +1807,8 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
       await loadAssessmentLinks();
     }
     if (button.dataset.page === "learning-recommendations") {
-    await loadLearningRecommendations();
+    await loadRecommendationParticipants();
+      await loadLearningRecommendations();
 }
   });
 });
