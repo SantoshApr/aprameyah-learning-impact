@@ -1769,6 +1769,9 @@ document.querySelectorAll("nav button[data-page]").forEach(button => {
       await loadPrograms();
       await loadAssessmentLinks();
     }
+    if (button.dataset.page === "learning-recommendations") {
+    await loadLearningRecommendations();
+}
   });
 });
 
