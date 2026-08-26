@@ -1529,6 +1529,43 @@ async function loadAssessmentLinks() {
   `;
 }
 
+  async function loadLearningRecommendations() {
+  if (!supabaseClient) return;
+
+  const { data, error } = await supabaseClient
+    .from("learning_recommendations")
+    .select(`
+      *,
+      participants(name),
+      programs(name, learning_objectives)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const container = document.getElementById("learningRecommendationsTable");
+
+  if (!container) return;
+
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>No learning recommendations available yet.</p>";
+    return;
+  }
+
+  container.innerHTML = tableHtml(
+    ["Participant", "Current Programme", "Recommended Programme", "Reason"],
+    data.map(item => [
+      item.participants?.name || "-",
+      item.current_program_name || "-",
+      item.recommended_program_name || "-",
+      item.reason || "-"
+    ])
+  );
+}
+
 async function toggleLink(id, active) {
   const { error } = await supabaseClient
     .from("assessment_links")
