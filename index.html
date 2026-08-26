@@ -1052,6 +1052,18 @@ async function loadParticipants() {
     select.appendChild(option);
   });
 }
+  async function generateRecommendation() {
+    const participantSelect = document.getElementById('recParticipant');
+    const participant = participantSelect.value;
+
+    if (!participant) {
+        alert('Please select a participant');
+        return;
+    }
+
+    console.log('Generating recommendation for:', participant);
+    alert('Recommendation generation for ' + participant + ' will start here.');
+}
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
   const programId = document.getElementById("reportProgram")?.value || "";
