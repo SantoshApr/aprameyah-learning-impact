@@ -1762,14 +1762,14 @@ function escapeHtml(value) {
   console.log("Loading answer sheet for:", result);
 
   showPage("answerSheetPage");
-
-  const nameElement = document.getElementById("answerSheetParticipantName");
-  const contentElement = document.getElementById("answerSheetContent");
-
-  if (nameElement) {
-    nameElement.textContent = "";
-  }
-
+const nameElement = document.getElementById("answerSheetParticipantName");
+const contentElement = document.getElementById("answerSheetContent");
+  
+    if (nameElement) {
+    nameElement.textContent = result.participant_name
+        ? `Participant: ${result.participant_name}`
+        : "";
+}
   if (contentElement) {
     contentElement.innerHTML = `
       <div class="card">
