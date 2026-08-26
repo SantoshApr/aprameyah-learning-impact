@@ -1870,8 +1870,7 @@ function escapeHtml(value) {
     </div>
 
     <br>
-   <button onclick="showPage('reportsPage'); document.getElementById('reportClient').value = ''; document.getElementById('reportProgram').value = ''; loadReports();">← Back to Reports</button>
-  </div>
+   <button onclick="showPage('reportsPage'); setTimeout(() => loadReports(), 100);">← Back to Reports</button>
 </div>
 </body>
 </html>
