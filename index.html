@@ -1031,19 +1031,27 @@ async function loadParticipants() {
     .select("id, name")
     .order("name");
 
+  console.log("Recommendation participants:", participants);
+  console.log("Recommendation participant error:", error);
+
   if (error) {
     console.error("Unable to load participants:", error);
+    select.innerHTML = '<option value="">Unable to load participants</option>';
+    return;
+  }
+
+  if (!participants || participants.length === 0) {
+    select.innerHTML = '<option value="">No participants found</option>';
     return;
   }
 
   participants.forEach(participant => {
     const option = document.createElement("option");
     option.value = participant.id;
-    option.textContent = participant.name;
+    option.textContent = participant.name || "Unnamed participant";
     select.appendChild(option);
   });
 }
-
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
   const programId = document.getElementById("reportProgram")?.value || "";
