@@ -681,12 +681,14 @@ async function addProgram() {
     });
 
   if (error) return alert(error.message);
+  alert("Program created successfully!");
 
-  document.getElementById("programName").value = "";
-  document.getElementById("programOverview").value = "";
-  document.getElementById("programObjectives").value = "";
-  document.getElementById("batchName").value = "";
-  document.getElementById("durationHours").value = "";
+document.getElementById("programClient").value = "";
+document.getElementById("programName").value = "";
+document.getElementById("programOverview").value = "";
+document.getElementById("programObjectives").value = "";
+document.getElementById("batchName").value = "";
+document.getElementById("durationHours").value = "";
 
   await loadPrograms();
   await loadDashboard();
