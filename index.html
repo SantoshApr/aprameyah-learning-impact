@@ -1313,7 +1313,7 @@ loadParticipantAnswerSheet(result);
   const select = document.getElementById("reportClient");
   if (!select) return;
 
-  select.innerHTML = `<option value="">All Clients</option>` +
+  select.innerHTML = `<option value="">Select Client</option>` +
     (data || []).map(c =>
       `<option value="${c.id}">${escapeHtml(c.name)}</option>`
     ).join("");
@@ -1341,7 +1341,7 @@ async function loadReportPrograms() {
   const select = document.getElementById("reportProgram");
   if (!select) return;
 
-  select.innerHTML = `<option value="">All Programs</option>` +
+  select.innerHTML = `<option value="">Select Program</option>` +
     (data || []).map(p =>
       `<option value="${p.id}">${escapeHtml(p.name)}${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}</option>`
     ).join("");
@@ -1486,11 +1486,11 @@ async function exportReportPDF() {
   // Get selected names
   const selectedClient = clientId
     ? document.getElementById("reportClient").selectedOptions[0]?.textContent
-    : "All Clients";
+    : "Select Client";
 
   const selectedProgram = programId
     ? document.getElementById("reportProgram").selectedOptions[0]?.textContent
-    : "All Programs";
+    : "Select Program";
 
   // Create PDF
   const { jsPDF } = window.jspdf;
