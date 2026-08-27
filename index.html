@@ -236,7 +236,7 @@ th{font-size:13px;color:var(--muted)}
 </div>
 
     <div class="actions">
-      <button class="primary" onclick="addProgram()">Create Program</button>
+      <button id="programSubmitBtn" class="primary" onclick="addProgram()">Create Program</button>
     </div>
   </div>
 
@@ -735,7 +735,7 @@ async function editProgram(id) {
   document.getElementById("programObjectives").value = data.objectives || "";
   document.getElementById("batchName").value = data.batch_name || "";
   document.getElementById("durationHours").value = data.duration_hours || "";
-
+document.getElementById("programSubmitBtn").textContent = "Update Program";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 async function loadQuestions() {
