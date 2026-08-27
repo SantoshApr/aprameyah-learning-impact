@@ -204,6 +204,15 @@ th{font-size:13px;color:var(--muted)}
         <input id="programName" placeholder="Program name">
       </div>
       <div>
+    <label>Course Overview</label>
+    <textarea id="programOverview" placeholder="Brief overview of the programme"></textarea>
+</div>
+
+<div>
+    <label>Course Objectives</label>
+    <textarea id="programObjectives" placeholder="Enter the learning objectives for this programme"></textarea>
+</div>
+      <div>
         <label>Batch Name</label>
         <input id="batchName" placeholder="Batch name">
       </div>
@@ -636,6 +645,8 @@ async function addProgram() {
   const name = document.getElementById("programName").value.trim();
   const batch_name = document.getElementById("batchName").value.trim();
   const duration_hours = Number(document.getElementById("durationHours").value) || null;
+  const overview = document.getElementById("programOverview").value.trim();
+const objectives = document.getElementById("programObjectives").value.trim();
 
   if (!client_id || !name) {
     return alert("Please select a client and enter a program name.");
@@ -643,7 +654,7 @@ async function addProgram() {
 
   const { error } = await supabaseClient
     .from("programs")
-    .insert({ client_id, name, batch_name, duration_hours });
+   .insert({ client_id, name, batch_name, duration_hours, overview, objectives });
 
   if (error) return alert(error.message);
 
