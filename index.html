@@ -706,18 +706,16 @@ async function loadPrograms() {
     (data || []).map(p =>
       `<option value="${p.id}">${escapeHtml(p.name)}${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}</option>`
     ).join("");
-
-  document.getElementById("questionProgram").innerHTML = options;
-  document.getElementById("linkProgram").innerHTML = options;
-
-  document.getElementById("programsList").innerHTML = tableHtml(
-    ["Program", "Batch", "Duration"],
-    (data || []).map(p => [
-      escapeHtml(p.name),
-      escapeHtml(p.batch_name || ""),
-      p.duration_hours || ""
-    ])
-  );
+document.getElementById("programsList").innerHTML = tableHtml(
+  ["Program", "Batch", "Duration", "Actions"],
+  (data || []).map(p => [
+    escapeHtml(p.name),
+    escapeHtml(p.batch_name || ""),
+    p.duration_hours || "",
+    `<button onclick="editProgram('${p.id}')">Edit</button>
+     <button onclick="deleteProgram('${p.id}')">Delete</button>`
+  ])
+);
 }
 
 async function loadQuestions() {
