@@ -243,8 +243,13 @@ th{font-size:13px;color:var(--muted)}
  <div class="card">
   <h2>Programs</h2>
   <p class="sub">Your created training programs</p>
-  <div id="programsList"></div>
-</div>
+<label for="programSelector">Select a Program</label>
+<select id="programSelector" onchange="showSelectedProgram()">
+  <option value="">Select a program</option>
+</select>
+
+<div id="programDetails"></div>
+ </div>
 </section>
 
 <!-- QUESTIONS -->
@@ -725,20 +730,25 @@ async function loadPrograms() {
 
   if (error) return;
 
-  const options = `<option value="">Select program</option>` +
+   document.getElementById("programSelector").innerHTML =
+    `<option value="">Select a program</option>` +
     (data || []).map(p =>
-      `<option value="${p.id}">${escapeHtml(p.name)}${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}</option>`
+      `<option value="${p.id}">
+        ${escapeHtml(p.name)}
+        ${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}
+      </option>`
     ).join("");
-document.getElementById("programsList").innerHTML = tableHtml(
-  ["Program", "Batch", "Duration", "Actions"],
-  (data || []).map(p => [
-    escapeHtml(p.name),
-    escapeHtml(p.batch_name || ""),
-    p.duration_hours || "",
-    `<button onclick="editProgram('${p.id}')">Edit</button>
-     <button onclick="deleteProgram('${p.id}')">Delete</button>`
-  ])
-);
+
+  window.programsData = data || [];
+  }
+}
+
+    window.programsData = data || [];
+}
+}   // existing closing bracket — leave it alone
+
+function showSelectedProgram() {
+  // new code goes here
 }
 async function editProgram(id) {
   const { data, error } = await supabaseClient
