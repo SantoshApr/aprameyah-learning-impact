@@ -702,7 +702,7 @@ if (editingProgramId) {
 }
 
   if (error) return alert(error.message);
- alert("Program created successfully!");
+alert(editingProgramId ? "Program updated successfully!" : "Program created successfully!");
 
 document.getElementById("programClient").selectedIndex = 0;
 document.getElementById("programName").value = "";
@@ -710,6 +710,8 @@ document.getElementById("programOverview").value = "";
 document.getElementById("programObjectives").value = "";
 document.getElementById("batchName").value = "";
 document.getElementById("durationHours").value = "";
+  editingProgramId = null;
+document.getElementById("programSubmitBtn").textContent = "Create Program";
 
 await loadPrograms();
 await loadDashboard();
