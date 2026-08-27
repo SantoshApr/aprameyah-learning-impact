@@ -1159,17 +1159,13 @@ async function loadParticipants() {
     select.appendChild(option);
   });
 }
-  async function generateRecommendation() {
-    const participantSelect = document.getElementById('recParticipant');
-    const participant = participantSelect.value;
+ async function generateRecommendation(participantId) {
+    const participant = participantId;
 
-    if (!participant) {
-        alert('Please select a participant');
-        return;
-    }
-
-    console.log('Generating recommendation for:', participant);
-    const participantName = participantSelect.options[participantSelect.selectedIndex].text;
+if (!participant) {
+    alert('Participant not found');
+    return;
+}
 
 alert('Generating personalised learning recommendation for: ' + participantName);
 }
@@ -1302,8 +1298,14 @@ if (reportResults) reportResults.style.display = "block";
 showPage("answerSheetPage");
 loadParticipantAnswerSheet(result);
 }
-  function openRecommendation(participantId) {
-  alert("Generate Recommendation clicked for participant: " + participantId);
+ function openRecommendation(participantId) {
+    const participantSelect = document.getElementById("recParticipant");
+
+    if (participantSelect) {
+        participantSelect.value = participantId;
+    }
+
+    generateRecommendation();
 }
 
   function generateRecommendation() {
