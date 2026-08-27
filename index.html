@@ -660,10 +660,10 @@ async function loadClients() {
 async function addProgram() {
   const client_id = document.getElementById("programClient").value;
   const name = document.getElementById("programName").value.trim();
+  const overview = document.getElementById("programOverview").value.trim();
+  const objectives = document.getElementById("programObjectives").value.trim();
   const batch_name = document.getElementById("batchName").value.trim();
   const duration_hours = Number(document.getElementById("durationHours").value) || null;
-  const overview = document.getElementById("programOverview").value.trim();
-const objectives = document.getElementById("programObjectives").value.trim();
 
   if (!client_id || !name) {
     return alert("Please select a client and enter a program name.");
@@ -671,11 +671,20 @@ const objectives = document.getElementById("programObjectives").value.trim();
 
   const { error } = await supabaseClient
     .from("programs")
-   .insert({ client_id, name, batch_name, duration_hours, overview, objectives });
+    .insert({
+      client_id,
+      name,
+      overview,
+      objectives,
+      batch_name,
+      duration_hours
+    });
 
   if (error) return alert(error.message);
 
   document.getElementById("programName").value = "";
+  document.getElementById("programOverview").value = "";
+  document.getElementById("programObjectives").value = "";
   document.getElementById("batchName").value = "";
   document.getElementById("durationHours").value = "";
 
