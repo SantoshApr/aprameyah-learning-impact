@@ -681,17 +681,17 @@ async function addProgram() {
     });
 
   if (error) return alert(error.message);
-  alert("Program created successfully!");
+ alert("Program created successfully!");
 
-document.getElementById("programClient").value = "";
+document.getElementById("programClient").selectedIndex = 0;
 document.getElementById("programName").value = "";
 document.getElementById("programOverview").value = "";
 document.getElementById("programObjectives").value = "";
 document.getElementById("batchName").value = "";
 document.getElementById("durationHours").value = "";
 
-  await loadPrograms();
-  await loadDashboard();
+await loadPrograms();
+await loadDashboard();
 }
 
 async function loadPrograms() {
