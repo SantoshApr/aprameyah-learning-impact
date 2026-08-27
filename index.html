@@ -1979,7 +1979,11 @@ function escapeHtml(value) {
     }
   }
 }
-  loadRecommendationParticipants();
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+        loadRecommendationParticipants();
+    }, 1000);
+});
 </script>
 <div id="answerSheetPage" class="page">
   <div class="container">
