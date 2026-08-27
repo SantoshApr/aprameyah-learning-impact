@@ -196,34 +196,44 @@ th{font-size:13px;color:var(--muted)}
   <div class="card">
     <h2>Program Details</h2>
     <div class="row">
-      <div>
-        <label>Client</label>
-        <select id="programClient"></select>
-      </div>
-      <div>
-        <label>Program Name</label>
-        <input id="programName" placeholder="Program name">
-      </div>
-      <h3>Learning Context</h3>
-      <div>
-    <label>Course Overview</label>
-    <textarea id="programOverview" placeholder="Brief overview of the programme"></textarea>
+  <div>
+    <label>Client</label>
+    <select id="programClient"></select>
+  </div>
+
+  <div>
+    <label>Program Name</label>
+    <input id="programName" placeholder="Program name">
+  </div>
 </div>
 
-<div>
+<h3>Learning Context</h3>
+
+<div class="row">
+  <div>
+    <label>Course Overview</label>
+    <textarea id="programOverview" placeholder="Brief overview of the programme"></textarea>
+  </div>
+
+  <div>
     <label>Course Objectives</label>
     <textarea id="programObjectives" placeholder="Enter the learning objectives for this programme"></textarea>
+  </div>
 </div>
-      <h3>Schedule Details</h3>
-      <div>
-        <label>Batch Name</label>
-        <input id="batchName" placeholder="Batch name">
-      </div>
-      <div>
-        <label>Duration (Hours)</label>
-        <input id="durationHours" type="number" placeholder="12">
-      </div>
-    </div>
+
+<h3>Schedule Details</h3>
+
+<div class="row">
+  <div>
+    <label>Batch Name</label>
+    <input id="batchName" placeholder="Batch name">
+  </div>
+
+  <div>
+    <label>Duration (Hours)</label>
+    <input id="durationHours" type="number" placeholder="12">
+  </div>
+</div>
 
     <div class="actions">
       <button class="primary" onclick="addProgram()">Create Program</button>
