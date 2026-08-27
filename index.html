@@ -762,6 +762,28 @@ editingProgramId = id;
 document.getElementById("programSubmitBtn").textContent = "Update Program";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+  async function deleteProgram(id) {
+  const confirmed = confirm(
+    "Are you sure you want to delete this program? This action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  const { error } = await supabaseClient
+    .from("programs")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Program deleted successfully!");
+
+  await loadPrograms();
+  await loadDashboard();
+}
 async function loadQuestions() {
   const programId = document.getElementById("questionProgram").value;
   if (!programId) {
