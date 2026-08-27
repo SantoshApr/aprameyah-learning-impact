@@ -1062,7 +1062,9 @@ async function loadParticipants() {
     }
 
     console.log('Generating recommendation for:', participant);
-    alert('Recommendation generation for ' + participant + ' will start here.');
+    const participantName = participantSelect.options[participantSelect.selectedIndex].text;
+
+alert('Generating personalised learning recommendation for: ' + participantName);
 }
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
