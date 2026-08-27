@@ -1302,6 +1302,9 @@ if (reportResults) reportResults.style.display = "block";
 showPage("answerSheetPage");
 loadParticipantAnswerSheet(result);
 }
+  function openRecommendation(participantId) {
+  alert("Generate Recommendation clicked for participant: " + participantId);
+}
 
   function generateRecommendation() {
     const participantSelect = document.getElementById("reportParticipant");
