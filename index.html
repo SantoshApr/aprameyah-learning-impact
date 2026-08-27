@@ -415,7 +415,24 @@ th{font-size:13px;color:var(--muted)}
         </button>
     </div>
 
-    <div id="reportsList">Please select a Client and Program to view assessment results.</div>
+    <div class="row" style="margin-top:15px;">
+  <div>
+    <label>Select Participant</label>
+    <select id="recParticipant">
+      <option value="">Select a participant</option>
+    </select>
+  </div>
+</div>
+
+<div class="actions" style="margin-top:15px;">
+  <button class="primary" onclick="generateRecommendation()">
+    Generate Recommendation
+  </button>
+</div>
+
+<div id="recommendationResult" style="margin-top:20px;"></div>
+      
+      <div id="reportsList">Please select a Client and Program to view assessment results.</div>
 </div>
  
 </section>
@@ -1176,6 +1193,7 @@ async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
   const programId = document.getElementById("reportProgram")?.value || "";
 const reportResults = document.getElementById("reportResults");
+  const participantSelect = document.getElementById("recParticipant");
 
 if (!clientId || !programId) {
   if (reportResults) reportResults.style.display = "none";
@@ -1298,6 +1316,26 @@ if (reportResults) reportResults.style.display = "block";
   currentParticipantResult = result;
 showPage("answerSheetPage");
 loadParticipantAnswerSheet(result);
+}
+
+  function generateRecommendation() {
+    const participantSelect = document.getElementById("reportParticipant");
+    const recommendationResult = document.getElementById("recommendationResult");
+
+    if (!participantSelect || !participantSelect.value) {
+        alert("Please select a participant first.");
+        return;
+    }
+
+    const participantName =
+        participantSelect.options[participantSelect.selectedIndex].text;
+
+    recommendationResult.innerHTML = `
+        <div class="card">
+            <h3>Learning Recommendation</h3>
+            <p>Generating a personalised learning recommendation for <strong>${participantName}</strong>...</p>
+        </div>
+    `;
 }
   async function loadReportClients() {
   const { data, error } = await supabaseClient
