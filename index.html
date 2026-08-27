@@ -1160,24 +1160,28 @@ async function loadParticipants() {
   });
 }
 async function generateRecommendation(participantId) {
-    if (!participantId) {
-        alert('Please select a participant first.');
+    const participantSelect = document.getElementById("recParticipant");
+
+    // Use the ID passed by the button, or the participant selected in the dropdown
+    const selectedParticipantId =
+        participantId || (participantSelect ? participantSelect.value : "");
+
+    if (!selectedParticipantId) {
+        alert("Please select a participant first.");
         return;
     }
 
-    const participantSelect = document.getElementById("recParticipant");
-
     if (participantSelect) {
-        participantSelect.value = participantId;
+        participantSelect.value = selectedParticipantId;
     }
 
+    // Open recommendation page
     showPage("recommendationPage");
 
-    setTimeout(() => {
-        if (typeof generateRecommendationForParticipant === "function") {
-            generateRecommendationForParticipant(participantId);
-        }
-    }, 100);
+    // Generate the recommendation
+    if (typeof generateRecommendationForParticipant === "function") {
+        generateRecommendationForParticipant(selectedParticipantId);
+    }
 }
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
