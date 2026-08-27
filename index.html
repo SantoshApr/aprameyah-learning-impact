@@ -741,14 +741,30 @@ async function loadPrograms() {
 
   window.programsData = data || [];
   }
-}
-
-    window.programsData = data || [];
-}
-}   // existing closing bracket — leave it alone
-
 function showSelectedProgram() {
-  // new code goes here
+  const selectedId = document.getElementById("programSelector").value;
+  const program = (window.programsData || []).find(
+    p => p.id === selectedId
+  );
+
+  const details = document.getElementById("programDetails");
+
+  if (!program) {
+    details.innerHTML = "";
+    return;
+  }
+
+  details.innerHTML = `
+    <div class="program-details-card">
+      <h3>${escapeHtml(program.name)}</h3>
+      <p><strong>Batch:</strong> ${escapeHtml(program.batch_name || "—")}</p>
+      <p><strong>Duration:</strong> ${program.duration_hours || "—"} hours</p>
+      <p><strong>Overview:</strong> ${escapeHtml(program.overview || "—")}</p>
+      <p><strong>Objectives:</strong> ${escapeHtml(program.objectives || "—")}</p>
+      <button onclick="editProgram('${program.id}')">Edit</button>
+      <button onclick="deleteProgram('${program.id}')">Delete</button>
+    </div>
+  `;
 }
 async function editProgram(id) {
   const { data, error } = await supabaseClient
