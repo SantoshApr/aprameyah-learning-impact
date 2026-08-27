@@ -501,6 +501,7 @@ let participantPackage = null;
 let activeAssessmentId = null;
 let timerInterval = null;
 let timeLimitSeconds = null;
+  let editingProgramId = null;
 
 /* =========================================================
    INITIALIZATION
@@ -669,7 +670,24 @@ async function addProgram() {
     return alert("Please select a client and enter a program name.");
   }
 
-  const { error } = await supabaseClient
+ let error;
+
+if (editingProgramId) {
+  const result = await supabaseClient
+    .from("programs")
+    .update({
+      client_id,
+      name,
+      overview,
+      objectives,
+      batch_name,
+      duration_hours
+    })
+    .eq("id", editingProgramId);
+
+  error = result.error;
+} else {
+  const result = await supabaseClient
     .from("programs")
     .insert({
       client_id,
@@ -679,6 +697,9 @@ async function addProgram() {
       batch_name,
       duration_hours
     });
+
+  error = result.error;
+}
 
   if (error) return alert(error.message);
  alert("Program created successfully!");
@@ -728,7 +749,8 @@ async function editProgram(id) {
     alert(error.message);
     return;
   }
-
+  
+editingProgramId = id;
   document.getElementById("programClient").value = data.client_id;
   document.getElementById("programName").value = data.name || "";
   document.getElementById("programOverview").value = data.overview || "";
