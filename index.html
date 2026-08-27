@@ -717,7 +717,27 @@ document.getElementById("programsList").innerHTML = tableHtml(
   ])
 );
 }
+async function editProgram(id) {
+  const { data, error } = await supabaseClient
+    .from("programs")
+    .select("*")
+    .eq("id", id)
+    .single();
 
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById("programClient").value = data.client_id;
+  document.getElementById("programName").value = data.name || "";
+  document.getElementById("programOverview").value = data.overview || "";
+  document.getElementById("programObjectives").value = data.objectives || "";
+  document.getElementById("batchName").value = data.batch_name || "";
+  document.getElementById("durationHours").value = data.duration_hours || "";
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 async function loadQuestions() {
   const programId = document.getElementById("questionProgram").value;
   if (!programId) {
