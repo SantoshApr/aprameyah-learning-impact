@@ -1175,7 +1175,14 @@ alert('Generating personalised learning recommendation for: ' + participantName)
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
   const programId = document.getElementById("reportProgram")?.value || "";
+const reportResults = document.getElementById("reportResults");
 
+if (!clientId || !programId) {
+  if (reportResults) reportResults.style.display = "none";
+  return;
+}
+
+if (reportResults) reportResults.style.display = "block";
   const { data, error } = await supabaseClient
     .from("assessment_results")
     .select(`
