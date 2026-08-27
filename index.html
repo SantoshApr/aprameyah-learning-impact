@@ -1280,7 +1280,7 @@ if (reportResults) reportResults.style.display = "block";
   });
 
   document.getElementById("reportsList").innerHTML = tableHtml(
-    ["Participant", "Program", "Stage", "Score", "Level", "Date"],
+   ["Participant", "Program", "Stage", "Score", "Level", "Date", "Recommendation"],
     filteredData.map(r => {
       const participant = participantMap[r.participant_id];
       const assessment = assessmentMap[r.assessment_id];
