@@ -1292,7 +1292,8 @@ if (reportResults) reportResults.style.display = "block";
         escapeHtml(assessment?.stage || ""),
         r.overall_score ?? "",
         escapeHtml(r.proficiency_level || ""),
-        r.created_at ? new Date(r.created_at).toLocaleString() : ""
+        r.created_at ? new Date(r.created_at).toLocaleString() : "",
+`<button class="primary" onclick="openRecommendation('${r.participant_id}')">Generate Recommendation</button>`
       ];
     })
   );
