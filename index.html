@@ -1159,15 +1159,25 @@ async function loadParticipants() {
     select.appendChild(option);
   });
 }
- async function generateRecommendation(participantId) {
-    const participant = participantId;
+async function generateRecommendation(participantId) {
+    if (!participantId) {
+        alert('Please select a participant first.');
+        return;
+    }
 
-if (!participant) {
-    alert('Participant not found');
-    return;
-}
+    const participantSelect = document.getElementById("recParticipant");
 
-alert('Generating personalised learning recommendation for: ' + participantName);
+    if (participantSelect) {
+        participantSelect.value = participantId;
+    }
+
+    showPage("recommendationPage");
+
+    setTimeout(() => {
+        if (typeof generateRecommendationForParticipant === "function") {
+            generateRecommendationForParticipant(participantId);
+        }
+    }, 100);
 }
 async function loadReports() {
   const clientId = document.getElementById("reportClient")?.value || "";
@@ -1305,7 +1315,7 @@ loadParticipantAnswerSheet(result);
         participantSelect.value = participantId;
     }
 
-    generateRecommendation();
+    generateRecommendation(participantId);
 }
 
   function generateRecommendation() {
