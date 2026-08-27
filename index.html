@@ -408,12 +408,14 @@ th{font-size:13px;color:var(--muted)}
   </div>
 
   <div class="card">
-  <div class="actions" style="margin-bottom:15px">
-    <button class="primary" onclick="exportReportPDF()">
-      Export Report as PDF
-    </button>
-  </div>
-  <div id="reportsList">Loading reports...</div>
+    <div id="reportResults" style="display:none;">
+    <div class="actions" style="margin-bottom:15px">
+        <button class="primary" onclick="exportReportPDF()">
+            Export Report as PDF
+        </button>
+    </div>
+
+    <div id="reportsList">Please select a Client and Program to view assessment results.</div>
 </div>
  
 </section>
