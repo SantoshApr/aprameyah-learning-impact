@@ -1322,38 +1322,7 @@ loadParticipantAnswerSheet(result);
     generateRecommendation(participantId);
 }
 
-  function generateRecommendation(participantId = null) {
-    const participantSelect = document.getElementById("reportParticipant");
-    const recommendationResult = document.getElementById("recommendationResult");
-
-    // Use the ID passed by the button, or fall back to the dropdown selection
-    const selectedParticipantId = participantId || participantSelect?.value;
-
-    if (!selectedParticipantId) {
-        alert("Please select a participant first.");
-        return;
-    }
-
-    // Keep the dropdown in sync
-    if (participantSelect) {
-        participantSelect.value = selectedParticipantId;
-    }
-
-    // Find the participant name
-    let participantName = "Participant";
-
-    if (participantSelect && participantSelect.selectedIndex >= 0) {
-        participantName =
-            participantSelect.options[participantSelect.selectedIndex].text || "Participant";
-    }
-
-    recommendationResult.innerHTML = `
-        <div class="card">
-            <h3>Learning Recommendation</h3>
-            <p>Generating a personalised learning recommendation for <strong>${participantName}</strong>...</p>
-        </div>
-    `;
-}
+  
   async function loadReportClients() {
   const { data, error } = await supabaseClient
     .from("clients")
