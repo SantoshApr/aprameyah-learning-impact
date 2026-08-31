@@ -717,6 +717,19 @@ async function loadPrograms() {
       </option>`
     ).join("");
 
+  const questionProgram = document.getElementById("questionProgram");
+
+if (questionProgram) {
+  questionProgram.innerHTML =
+    `<option value="">Select a program</option>` +
+    (data || []).map(p =>
+      `<option value="${p.id}">
+        ${escapeHtml(p.name)}
+        ${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}
+      </option>`
+    ).join("");
+}
+
   window.programsData = data || [];
   }
 function showSelectedProgram() {
