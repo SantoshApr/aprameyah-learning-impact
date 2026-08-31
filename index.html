@@ -2134,7 +2134,163 @@ function escapeHtml(value) {
         loadRecommendationParticipants();
     }, 1000);
 });
+
+  async function generateRecommendationForParticipant(participantId) {
+
+  const nameElement =
+    document.getElementById("recommendationParticipantName");
+
+  const contentElement =
+    document.getElementById("recommendationContent");
+
+  if (!participantId) {
+    if (contentElement) {
+      contentElement.innerHTML =
+        '<div class="notice error">Participant not selected.</div>';
+    }
+    return;
+  }
+
+  if (nameElement) {
+    nameElement.textContent = "Loading participant...";
+  }
+
+  if (contentElement) {
+    contentElement.innerHTML =
+      "<p>Loading recommendation...</p>";
+  }
+
+  try {
+
+    // Get participant
+    const { data: participant, error: participantError } =
+      await supabaseClient
+        .from("participants")
+        .select("id, name, program_id")
+        .eq("id", participantId)
+        .single();
+
+    if (participantError) throw participantError;
+
+    if (nameElement) {
+      nameElement.textContent =
+        `Participant: ${participant?.name || "Participant"}`;
+    }
+
+    // Get latest assessment result
+    const { data: results, error: resultError } =
+      await supabaseClient
+        .from("assessment_results")
+        .select(`
+          overall_score,
+          proficiency_level,
+          recommendation,
+          created_at,
+          assessment_id
+        `)
+        .eq("participant_id", participantId)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (resultError) throw resultError;
+
+    if (!results || results.length === 0) {
+      contentElement.innerHTML = `
+        <div class="notice error">
+          No assessment result is available for this participant.
+        </div>
+      `;
+      return;
+    }
+
+    const result = results[0];
+
+    // Get programme details
+    const { data: program, error: programError } =
+      await supabaseClient
+        .from("programs")
+        .select("name, overview, objectives")
+        .eq("id", participant.program_id)
+        .single();
+
+    if (programError) {
+      console.warn("Unable to load program:", programError);
+    }
+
+    contentElement.innerHTML = `
+      <div class="card">
+
+        <h2>Assessment Summary</h2>
+
+        <p>
+          <strong>Program:</strong>
+          ${escapeHtml(program?.name || "Not available")}
+        </p>
+
+        <p>
+          <strong>Overall Score:</strong>
+          ${result.overall_score ?? "Not available"}%
+        </p>
+
+        <p>
+          <strong>Proficiency Level:</strong>
+          ${escapeHtml(result.proficiency_level || "Not available")}
+        </p>
+
+        <hr style="margin:20px 0;border:0;border-top:1px solid #e1e6ef;">
+
+        <h2>Learning Recommendation</h2>
+
+        <div class="notice success">
+          ${
+            result.recommendation
+              ? escapeHtml(result.recommendation)
+              : "No recommendation has been generated for this assessment yet."
+          }
+        </div>
+
+      </div>
+    `;
+
+  } catch (error) {
+
+    console.error(
+      "Error generating recommendation:",
+      error
+    );
+
+    if (contentElement) {
+      contentElement.innerHTML = `
+        <div class="notice error">
+          Unable to load recommendation:
+          ${escapeHtml(error.message || "Unknown error")}
+        </div>
+      `;
+    }
+  }
+}
 </script>
+    <div id="recommendationPage" class="page">
+  <div class="container">
+    <h1>Learning Recommendation</h1>
+
+    <div class="card">
+      <p id="recommendationParticipantName">
+        Loading participant...
+      </p>
+
+      <div id="recommendationContent">
+        Loading recommendation...
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="showPage('reports')">
+        ← Back to Reports
+      </button>
+    </div>
+  </div>
+</div>
 <div id="answerSheetPage" class="page">
   <div class="container">
     <h1>Participant Answer Sheet</h1>
