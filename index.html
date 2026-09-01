@@ -2208,7 +2208,7 @@ function escapeHtml(value) {
         // Get detailed question-level assessment performance
     const { data: answerRows, error: answerError } =
       await supabaseClient
-        .from("assessment_answers")
+      .from("assessment_responses")
         .select(`
           question_id,
           selected_option,
