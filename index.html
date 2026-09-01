@@ -2238,19 +2238,14 @@ function escapeHtml(value) {
         </p>
 
         <hr style="margin:20px 0;border:0;border-top:1px solid #e1e6ef;">
+        
+<h2>AI-Generated Learning Recommendation & Master Class Plan</h2>
 
-        <h2>Learning Recommendation</h2>
+<div id="masterClassRecommendation" class="notice success">
+  <p>Generating a personalised Master Class plan...</p>
+</div>
 
-        <div class="notice success">
-          ${
-            result.recommendation
-              ? escapeHtml(result.recommendation)
-              : "No recommendation has been generated for this assessment yet."
-          }
-        </div>
-
-      </div>
-    `;
+         `;
 
   } catch (error) {
 
