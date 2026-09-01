@@ -2205,6 +2205,79 @@ function escapeHtml(value) {
 
     const result = results[0];
 
+        // Get detailed question-level assessment performance
+    const { data: answerRows, error: answerError } =
+      await supabaseClient
+        .from("assessment_answers")
+        .select(`
+          question_id,
+          selected_option,
+          is_correct
+        `)
+        .eq("assessment_id", result.assessment_id);
+
+    if (answerError) throw answerError;
+
+    const questionIds =
+      (answerRows || []).map(a => a.question_id).filter(Boolean);
+
+    let questionRows = [];
+
+    if (questionIds.length > 0) {
+      const { data: questions, error: questionError } =
+        await supabaseClient
+          .from("questions")
+          .select(`
+            id,
+            module_id,
+            skill,
+            question_text,
+            correct_option
+          `)
+          .in("id", questionIds);
+
+      if (questionError) throw questionError;
+
+      questionRows = questions || [];
+    }
+
+    // Get module names
+    const moduleIds =
+      questionRows.map(q => q.module_id).filter(Boolean);
+
+    let moduleRows = [];
+
+    if (moduleIds.length > 0) {
+      const { data: modules, error: moduleError } =
+        await supabaseClient
+          .from("modules")
+          .select("id, name")
+          .in("id", moduleIds);
+
+      if (moduleError) throw moduleError;
+
+      moduleRows = modules || [];
+    }
+
+    // Combine answers, questions, skills and module names
+    const questionPerformance = questionRows.map(q => {
+      const answer = answerRows.find(
+        a => a.question_id === q.id
+      );
+
+      const module = moduleRows.find(
+        m => m.id === q.module_id
+      );
+
+      return {
+        module_name: module?.name || null,
+        skill: q.skill || null,
+        question_text: q.question_text || "",
+        selected_option: answer?.selected_option ?? null,
+        correct_option: q.correct_option ?? null,
+        is_correct: answer?.is_correct ?? false
+      };
+    });
     // Get programme details
     const { data: program, error: programError } =
       await supabaseClient
@@ -2217,6 +2290,37 @@ function escapeHtml(value) {
       console.warn("Unable to load program:", programError);
     }
 
+        // Generate personalised AI Master Class
+    const { data: masterClass, error: masterClassError } =
+      await supabaseClient.functions.invoke(
+        "generate-learning-masterclass",
+        {
+          body: {
+            participant: {
+              id: participant.id,
+              name: participant.name
+            },
+
+            assessment: {
+              id: result.assessment_id,
+              score: result.overall_score,
+              proficiency_level: result.proficiency_level
+            },
+
+            program: {
+              name: program?.name || "",
+              overview: program?.overview || "",
+              objectives: program?.objectives || ""
+            },
+
+            questionPerformance
+          }
+        }
+      );
+
+    if (masterClassError) {
+      throw masterClassError;
+    }
     contentElement.innerHTML = `
       <div class="card">
 
@@ -2242,7 +2346,23 @@ function escapeHtml(value) {
 <h2>AI-Generated Learning Recommendation & Master Class Plan</h2>
 
 <div id="masterClassRecommendation" class="notice success">
-  <p>Generating a personalised Master Class plan...</p>
+  ${
+    masterClass
+      ? `
+        <div style="white-space:pre-wrap;line-height:1.6;">
+          ${escapeHtml(
+            masterClass.recommendation ||
+            masterClass.master_class_plan ||
+            masterClass.plan ||
+            masterClass.content ||
+            JSON.stringify(masterClass, null, 2)
+          )}
+        </div>
+      `
+      : `
+        <p>Unable to generate a personalised Master Class plan.</p>
+      `
+  }
 </div>
 
          `;
