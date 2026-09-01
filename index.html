@@ -2296,10 +2296,12 @@ function escapeHtml(value) {
         "generate-learning-masterclass",
         {
           body: {
-            participant: {
-              id: participant.id,
-              name: participant.name
-            },
+  participantId: participant.id,
+
+  participant: {
+    id: participant.id,
+    name: participant.name
+  },
 
             assessment: {
               id: result.assessment_id,
