@@ -436,7 +436,10 @@ th{font-size:13px;color:var(--muted)}
         <label>Program</label>
         <select id="linkProgram"></select>
       </div>
-
+<div>
+  <label>Batch</label>
+  <input id="linkBatch" type="text" placeholder="Example: Batch 1">
+</div>
       <div>
         <label>Assessment Stage</label>
         <select id="linkStage">
@@ -1614,16 +1617,22 @@ async function exportReportPDF() {
 
 async function createAssessmentLink() {
   const program_id = document.getElementById("linkProgram").value;
+  const batch_name = document.getElementById("linkBatch").value.trim();
   const stage = document.getElementById("linkStage").value;
   const timeLimit = document.getElementById("linkTimeLimit").value;
   const expiryValue = document.getElementById("linkExpiry").value;
 
-  if (!program_id) {
+ if (!program_id) {
     return showLinkMessage("Please select a program.", true);
-  }
+}
 
-  const payload = {
+if (!batch_name) {
+    return showLinkMessage("Please enter a batch.", true);
+}
+
+ const payload = {
     program_id,
+    batch_name,
     stage,
     active: true,
     time_limit_minutes: timeLimit ? Number(timeLimit) : null,
@@ -1683,7 +1692,8 @@ async function loadAssessmentLinks() {
       <thead>
         <tr>
           <th>Program</th>
-          <th>Stage</th>
+          <th>Batch</th>
+<th>Stage</th>
           <th>Time Limit</th>
           <th>Expires</th>
           <th>Status</th>
@@ -1696,6 +1706,7 @@ async function loadAssessmentLinks() {
           return `
             <tr>
               <td>${escapeHtml(l.programs?.name || "")}</td>
+              <td>${escapeHtml(l.batch_name || "")}</td>
               <td>${escapeHtml(l.stage || "")}</td>
               <td>${l.time_limit_minutes ? l.time_limit_minutes + " mins" : "No limit"}</td>
               <td>${l.expires_at ? new Date(l.expires_at).toLocaleString() : "No expiry"}</td>
