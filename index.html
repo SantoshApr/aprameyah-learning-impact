@@ -1047,7 +1047,8 @@ async function addSelectedBankQuestions() {
           const option2 = String(row["Option 2"] || "").trim();
           const option3 = String(row["Option 3"] || "").trim();
           const option4 = String(row["Option 4"] || "").trim();
-          const correctAnswer = Number(row["Correct Answer"]);
+         const correctAnswerText = String(row["Correct Answer"] || "").trim();
+const correctAnswer = Number(correctAnswerText.replace("Option ", ""));
           const skill = String(row["Skill"] || "").trim();
           const difficulty = String(row["Difficulty"] || "").trim();
 
