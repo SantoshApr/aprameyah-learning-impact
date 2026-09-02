@@ -728,6 +728,18 @@ if (questionProgram) {
         ${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}
       </option>`
     ).join("");
+  const linkProgram = document.getElementById("linkProgram");
+
+if (linkProgram) {
+  linkProgram.innerHTML =
+    `<option value="">Select a program</option>` +
+    (data || []).map(p =>
+      `<option value="${p.id}">
+        ${escapeHtml(p.name)}
+        ${p.batch_name ? " — " + escapeHtml(p.batch_name) : ""}
+      </option>`
+    ).join("");
+}
 }
 
   window.programsData = data || [];
