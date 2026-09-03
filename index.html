@@ -1630,6 +1630,27 @@ if (!batch_name) {
     return showLinkMessage("Please enter a batch.", true);
 }
 
+  // Check that the selected program has at least one active question
+const { count: questionCount, error: questionCheckError } =
+  await supabaseClient
+    .from("questions")
+    .select("id", { count: "exact", head: true })
+    .eq("program_id", program_id)
+    .eq("active", true);
+
+if (questionCheckError) {
+  return showLinkMessage(
+    "Unable to check questions for this program.",
+    true
+  );
+}
+
+if (!questionCount || questionCount === 0) {
+  return showLinkMessage(
+    "Cannot create assessment link. This program has no questions. Please add questions first.",
+    true
+  );
+}
  const payload = {
     program_id,
     batch_name,
