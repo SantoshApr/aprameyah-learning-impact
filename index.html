@@ -649,7 +649,11 @@ async function saveSupabaseConfig() {
   location.reload();
 }
 
-function disconnectSupabase() {
+async function disconnectSupabase() {
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
+
   localStorage.removeItem(CONFIG_KEY);
   location.reload();
 }
