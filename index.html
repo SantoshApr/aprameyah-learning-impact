@@ -650,14 +650,17 @@ async function saveSupabaseConfig() {
 }
 
 async function disconnectSupabase() {
-  if (supabaseClient) {
-    await supabaseClient.auth.signOut();
+  try {
+    if (supabaseClient) {
+      await supabaseClient.auth.signOut({ scope: "local" });
+    }
+  } catch (err) {
+    console.error("Sign out error:", err);
   }
 
   localStorage.removeItem(CONFIG_KEY);
   location.reload();
 }
-
 async function loadAllAdminData() {
   await Promise.all([
     loadDashboard(),
