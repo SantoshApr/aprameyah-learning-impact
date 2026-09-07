@@ -2089,10 +2089,10 @@ async function submitAssessment() {
     document.getElementById("resultScreen").classList.remove("hidden");
 
     document.getElementById("resultScore").textContent =
-      `Score: ${data.score}%`;
+      "Assessment submitted successfully.";
 
     document.getElementById("resultDetails").textContent =
-      `You answered ${data.correct} out of ${data.total} questions correctly.`;
+      "Thank you for completing the assessment. Your results will be reviewed and shared with the relevant stakeholders.";
 
   } catch (err) {
     alert(err.message || "Unable to submit assessment.");
@@ -2100,7 +2100,6 @@ async function submitAssessment() {
     button.textContent = "Submit Assessment";
   }
 }
-
 /* =========================================================
    NAVIGATION & HELPERS
    ========================================================= */
