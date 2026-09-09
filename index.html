@@ -37,6 +37,10 @@ p.sub{color:var(--muted);margin:0 0 25px}
 .stat-label{color:var(--muted)}
 .row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
 .row>*{flex:1;min-width:160px}
+  #reports > .card:last-child {
+  width: 100%;
+  box-sizing: border-box;
+}
 label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
 input,select,textarea{
  width:100%;padding:11px;border:1px solid #d4dae5;border-radius:8px;
@@ -53,22 +57,29 @@ button.danger{background:var(--red);color:#fff}
 button:disabled{opacity:.6;cursor:not-allowed}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
 table{width:100%;border-collapse:collapse}
-  #reportsList {
+ #reportsList {
   width: 100%;
   overflow-x: auto;
 }
-#reportsList {
-  width: 100%;
-  overflow-x: auto;
-}
+
 #reportsList table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 #reportsList th,
 #reportsList td {
-  word-break: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+#reportsList table {
+  width: 100%;
+  table-layout: auto;
+}
+
+#reportsList th,
+#reportsList td {
+  word-break: normal;
 }
 th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:13px;color:var(--muted)}
@@ -84,11 +95,15 @@ th{font-size:13px;color:var(--muted)}
 .center{max-width:850px;margin:40px auto}
 .small{font-size:13px;color:var(--muted)}
 .badge{display:inline-block;padding:4px 9px;border-radius:20px;background:#eef2ff;color:#315efb;font-size:12px;font-weight:700}
-@media(max-width:850px){
+#reports .grid {
+  grid-template-columns: 1fr;
+}
+  @media(max-width:850px){
  .grid{grid-template-columns:repeat(2,1fr)}
   #reports .grid {
   grid-template-columns: 1fr;
 }
+  
  main{padding:22px 15px}
 }
 </style>
@@ -431,6 +446,7 @@ th{font-size:13px;color:var(--muted)}
     <option value="">Select Batch</option>
   </select>
 </div>
+   </div>
  <div class="card" style="width:100%; box-sizing:border-box;">
     <div id="reportResults" style="display:none;">
     <div class="actions" style="margin-bottom:15px">
