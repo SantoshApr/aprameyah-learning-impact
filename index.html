@@ -445,17 +445,19 @@ th{font-size:13px;color:var(--muted)}
   <select id="reportBatch" onchange="loadReports()">
     <option value="">Select Batch</option>
   </select>
-  <button onclick="exportReportsToExcel()" style="margin-top:10px;">
-  Export to Excel
-</button>
+  
 </div>
    </div>
  <div class="card" style="width:100%; box-sizing:border-box;">
     <div id="reportResults" style="display:none;">
     <div class="actions" style="margin-bottom:15px">
-        <button class="primary" onclick="exportReportPDF()">
-            Export Report as PDF
-        </button>
+  <button class="primary" onclick="exportReportPDF()">
+    Export Report as PDF
+  </button>
+
+  <button onclick="exportReportsToExcel()">
+    Export to Excel
+  </button>
  
 <div id="recommendationResult" style="margin-top:20px;"></div>
       
