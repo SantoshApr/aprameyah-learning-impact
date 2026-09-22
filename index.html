@@ -445,6 +445,9 @@ th{font-size:13px;color:var(--muted)}
   <select id="reportBatch" onchange="loadReports()">
     <option value="">Select Batch</option>
   </select>
+  <button onclick="exportReportsToExcel()" style="margin-top:10px;">
+  Export to Excel
+</button>
 </div>
    </div>
  <div class="card" style="width:100%; box-sizing:border-box;">
@@ -2639,6 +2642,20 @@ function escapeHtml(value) {
       `;
     }
   }
+}
+  function exportReportsToExcel() {
+  const table = document.querySelector("#reportsList table");
+
+  if (!table) {
+    alert("Please load the report first.");
+    return;
+  }
+
+  const workbook = XLSX.utils.table_to_book(table, {
+    sheet: "Assessment Report"
+  });
+
+  XLSX.writeFile(workbook, "Aprameyah_Assessment_Report.xlsx");
 }
 </script>
     <div id="recommendationPage" class="page">
